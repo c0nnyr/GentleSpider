@@ -14,12 +14,12 @@ class BaseObject(object):
             if isinstance(v, BaseObject):
                 v.destroy()
             elif isinstance(v, (list, tuple)):
-                for _v in v:
-                    if _v:
-                        v.destroy()
+                for v2 in v:
+                    if v2:
+                        v2.destroy()
             elif isinstance(v, dict):
-                for _v in v.itervalues():
-                    if _v:
-                        v.destroy()
+                for v2 in v.itervalues():
+                    if v2:
+                        v2.destroy()
 
         self.__dict__.clear()
