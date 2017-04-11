@@ -1,4 +1,7 @@
 # coding:utf-8
+from BaseObject import BaseObject
+from Header import Header
+from Selector import Selector
 
 class Response(BaseObject):
 
