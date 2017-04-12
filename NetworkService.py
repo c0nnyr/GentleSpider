@@ -1,9 +1,8 @@
 # coding:utf-8
 import requests, urllib, urllib2
-from BaseObject import BaseObject
 from Response import Response
 
-class NetworkService(BaseObject):
+class NetworkService(object):
 	#取自chrome的一次访问
 	DEFAULT_HEADER = {
 		'Connection': 'keep-alive',
@@ -27,7 +26,6 @@ class NetworkService(BaseObject):
 			r = self.session.get(request.url)
 		else:
 			raise NotImplementedError()
-		resp = Response(body=r.content, url=r.url, status=r.status_code, request_response=r, meta=request.meta)
-		request.destroy()
+		return Response(body=r.content, url=r.url, status=r.status_code, request_response=r, meta=request.meta)
 
 

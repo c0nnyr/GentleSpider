@@ -1,10 +1,20 @@
 # coding:utf-8
 from NetworkService import NetworkService
-import requests
-if __name__ == '__main__':
+from Dispatcher import Dispatcher
+from BaseItemHandler import BaseItemHandler
+from BaseSpider import BaseSpider
+
+def main():
 	net = NetworkService()
-	res = requests.get('http://baidu.com')
-	print res.text
+	dispatcher = Dispatcher()
+	item_handler = BaseItemHandler()
+	dispatcher.set_network_service(net)
+	dispatcher.set_item_handler(item_handler)
+
+	dispatcher.run(BaseSpider())
+
+if __name__ == '__main__':
+	main()
 
 
 

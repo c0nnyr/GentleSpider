@@ -1,9 +1,6 @@
 # coding:utf-8
-from BaseObject import BaseObject
-
-class Request(BaseObject):
+class Request(object):
 	def __init__(self, url, method='get', data=None, meta=None, callback=None):
-		super(Request, self).__init__()
 		self._url = url
 		self._data = data or {}
 		self._meta = meta or {}
@@ -22,5 +19,6 @@ class Request(BaseObject):
 	@property
 	def method(self):
 		return self._method
+	@property
 	def callback(self):
 		return self._callback

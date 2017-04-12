@@ -3,8 +3,6 @@ from lxml import etree, html
 import types, re
 from w3lib.html import replace_entities
 
-from BaseObject import BaseObject
-
 def flatten(lst):
 	return list(iflatten(lst))
 def iflatten(lst):
@@ -15,9 +13,8 @@ def iflatten(lst):
 		else:
 			yield el
 
-class SelectorList(BaseObject):
+class SelectorList(object):
 	def __init__(self, selector_lst):
-		super(SelectorList, self).__init__()
 		self.selector_lst = selector_lst
 
 	def re(self, regex):
@@ -48,10 +45,9 @@ class SelectorList(BaseObject):
 		return bool(self.selector_lst)
 	__nonzero__ = __bool__
 
-class Selector(BaseObject):
+class Selector(object):
 	ENCODING_TYPE = 'utf8'
 	def __init__(self, text=None, root=None, type='html', expr=''):
-		super(Selector, self).__init__()
 		PARSER_CLS_MAP = {
 			'html':html.HTMLParser,
 			'xml':etree.XMLParser
@@ -63,7 +59,9 @@ class Selector(BaseObject):
 		if text is not None:
 			parser_cls = PARSER_CLS_MAP[type]
 			def create_root(text=text, parser_cls=parser_cls):
-				body = text.strip().encode(self.ENCODING_TYPE) or b'<html/>'
+				if not isinstance(text, str):
+					text = text.encode(self.ENCODING_TYPE)
+				body = text.strip().decode(self.ENCODING_TYPE) or '<html/>'
 				parser = parser_cls(recover=True, encoding=self.ENCODING_TYPE)
 				return etree.fromstring(body, parser=parser)
 			root = create_root()
