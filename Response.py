@@ -5,14 +5,14 @@ from Selector import Selector
 
 class Response(BaseObject):
 
-    def __init__(self, url, status=-1, header=None, body='', request=None):
-        super(Response, self).__init__(auto_destroy=('header', 'selector'))
-        self.header = Header(header or {})
-        self.satus = int(status)
-        self.request = request
+    def __init__(self, body, url='', meta=None, status=-1, request_response=None):
+        super(Response, self).__init__(auto_destroy=('_selector',))
+        self._status = int(status)
         self._url = url
         self._body = body
-        self.selector = Selector(self)
+        self._request_response = request_response
+        self._selector = Selector(self)
+        self._meta = meta or {}
 
     @property
     def url(self):
@@ -24,9 +24,13 @@ class Response(BaseObject):
 
     @property
     def meta(self):
-        return getattr(self.request, 'meta', {})
+        return self._meta
+
+    @property
+    def status(self):
+        return self._status
 
     def xpath(self, query, **kwargs):
-        return self.selector.xpath(query, **kwargs)
+        return self._selector.xpath(query, **kwargs)
 
 

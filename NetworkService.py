@@ -1,8 +1,10 @@
 # coding:utf-8
 import requests, urllib, urllib2
 from BaseObject import BaseObject
+from Response import Response
 
 class NetworkService(BaseObject):
+	#取自chrome的一次访问
 	DEFAULT_HEADER = {
 		'Connection': 'keep-alive',
 		'Pragma': 'no-cache',
@@ -18,8 +20,14 @@ class NetworkService(BaseObject):
 		self.session = session = requests.Session()
 		session.headers.update(self.DEFAULT_HEADER)
 
-	def get(self, url):
-		return self.session.get(url)
+	def send_request(self, request):
+		if request.method == 'post':
+			r = self.session.post(request.url, request.data)
+		elif request.method == 'get':
+			r = self.session.get(request.url)
+		else:
+			raise NotImplementedError()
+		resp = Response(body=r.content, url=r.url, status=r.status_code, request_response=r, meta=request.meta)
+		request.destroy()
 
-	def post(self, url, data=None):
-		return self.session.post(url, data)
+
