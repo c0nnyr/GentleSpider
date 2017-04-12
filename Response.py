@@ -33,3 +33,8 @@ class Response(object):
     def re(self, regex):
         return self._selector.re(regex)
 
+    def re_first(self, regex):
+        try:
+            return self._selector.re(regex)[0]
+        except:
+            return ''

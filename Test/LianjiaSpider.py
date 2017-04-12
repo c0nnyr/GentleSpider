@@ -1,13 +1,16 @@
 # coding:utf-8
 from BaseSpider import BaseSpider
+from BaseItem import BaseItem
+import re, math, json
+from Request import Request
 
 class LianjiaSider(BaseSpider):
 	RESBLOCK_URL = 'http://cd.lianjia.com/ershoufang/{page}c{rid}/'
 	COMMUNITY_ITEM_INFO_RE = r'''require\(\['ershoufang/sellList/index'\],\s*?function\s*?\(main\)\s*?\{\s*?main\((?P<extract>(\s|\S)*?)\);\s*?\}\);'''
 	def __init__(self):
 		super(LianjiaSider, self).__init__()
-		rid = 1611041529992#望江嘉园
-		self.start_urls = (self.RESBLOCK_URL.format(rid=rid, page=''), )
+		self.rid = 1611041529992#望江嘉园
+		self.start_urls = (self.RESBLOCK_URL.format(rid=self.rid, page=''), )
 
 	def parse(self, response):
 		print response.url
@@ -15,6 +18,7 @@ class LianjiaSider(BaseSpider):
 		house_url_xpath = '/html/body/div[4]/div[1]/ul/li/div[1]/div[1]/a/@href'
 		for url in response.xpath(house_url_xpath).extract():
 			print url
+
 
 def main():
 	from NetworkService import NetworkService

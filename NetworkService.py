@@ -20,6 +20,7 @@ class NetworkService(object):
 		session.headers.update(self.DEFAULT_HEADER)
 
 	def send_request(self, request):
+		print 'requesting', request.url
 		if request.method == 'post':
 			r = self.session.post(request.url, request.data)
 		elif request.method == 'get':

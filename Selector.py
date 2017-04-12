@@ -38,7 +38,7 @@ class SelectorList(object):
 
 	def extract_first(self, default=None):
 		for sel in self.selector_lst:
-			return self.extract()
+			return sel.extract()
 		return default
 
 	def __bool__(self):
@@ -61,7 +61,7 @@ class Selector(object):
 			def create_root(text=text, parser_cls=parser_cls):
 				if not isinstance(text, str):
 					text = text.encode(self.ENCODING_TYPE)
-				body = text.strip().decode(self.ENCODING_TYPE) or '<html/>'
+				body = text.strip() or '<html/>'
 				parser = parser_cls(recover=True, encoding=self.ENCODING_TYPE)
 				return etree.fromstring(body, parser=parser)
 			root = create_root()
@@ -85,8 +85,10 @@ class Selector(object):
 		return self.SELECTOR_LIST_CLS(result)
 
 	def extract(self):
-		return etree.tostring(self.root, method=self.type, encoding=self.ENCODING_TYPE,
-							  with_tail=False)
+		try:
+			return etree.tostring(self.root, method=self.type, encoding=self.ENCODING_TYPE, with_tail=False)
+		except (AttributeError, TypeError):
+			return self.root.decode(self.ENCODING_TYPE)
 
 	def __bool__(self):
 		return bool(self.extract())
