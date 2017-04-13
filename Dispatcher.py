@@ -5,6 +5,7 @@ from BaseSpider import BaseSpider
 from Request import Request
 import GlobalMethod as M
 import itertools
+import SqlDBHelper as db
 
 class Dispatcher(BaseObject):
 
@@ -21,11 +22,11 @@ class Dispatcher(BaseObject):
 		for spider in spiders:
 			assert isinstance(spider, BaseSpider), 'spider must be instance of BaseSpider'
 			request_or_items = spider.get_start_requests()
-			self._run(M.arg_to_iter(request_or_items))
+			self._run(M.arg_to_iter(request_or_items), spider)
 		for handler in itertools.chain(self._item_handler_list, self._response_handler_list, self._request_handler_list):
 			handler.close_spider()
 
-	def _run(self, request_or_items):
+	def _run(self, request_or_items, spider):
 		for request_or_item in request_or_items:
 			if M.is_item(request_or_item):
 				for handler in self._item_handler_list:
@@ -42,7 +43,12 @@ class Dispatcher(BaseObject):
 						break
 				else:
 					callback = request_or_item.callback
-					response = self._network_service.send_request(request_or_item)
+					if request_or_item.use_cache:
+						response = db.RequestResponseMap.get(request_or_item)
+					if not response:
+						response = self._network_service.send_request(request_or_item)
+					if spider.is_valid_response(response):
+						self._store_request_response(request_or_item, response)
 					for handler in self._response_handler_list:
 						try:
 							handler.handle(response)
@@ -56,7 +62,7 @@ class Dispatcher(BaseObject):
 							except Exception as ex:
 								print 'Exception happens when running callback of request', ex, request_or_item
 								new_request_or_items = []
-							self._run(M.arg_to_iter(new_request_or_items))
+							self._run(M.arg_to_iter(new_request_or_items), spider)
 
 	def set_network_service(self, network_service):
 		self._network_service = network_service
@@ -72,3 +78,9 @@ class Dispatcher(BaseObject):
 	def add_response_handler(self, response_handler):
 		assert isinstance(response_handler, BaseResponseHandler), 'response handler must be instance of BaseResponseHandler'
 		self._response_handler_list.append(response_handler)
+
+	def _store_request_response(self, request, response):
+		request_response_pair = db.RequestResponseMap(request, response)
+		db.session.merge(request_response_pair)
+		db.session.commit()
+

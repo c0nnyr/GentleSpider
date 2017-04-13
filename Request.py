@@ -2,13 +2,17 @@
 import cPickle
 class Request(object):
 
-	def __init__(self, url, method='get', data=None, meta=None, callback=None, **kwargs):
+	def __init__(self, url, method='get', data=None, meta=None, callback=None, use_cache=False, cache_valid_duration=10):
 		self._url = url
 		self._data = data or {}
 		self._meta = meta or {}
 		self._method = method
 		self._callback = callback
+		self._use_cache = use_cache
 
+	@property
+	def use_cache(self):
+		return self._use_cache
 	@property
 	def url(self):
 		return self._url

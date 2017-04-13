@@ -15,3 +15,6 @@ class BaseSpider(object):
 
 	def try_validate(self, response, callback):
 		return []
+
+	def is_valid_response(self, response):
+		return True

@@ -26,4 +26,9 @@ class RequestResponseMap(Model):
 
 		self.request_time = datetime.datetime.now()
 
+	@classmethod
+	def get(cls, request):
+		request_str = request.dumps()
+		return session.query(cls).filter(cls.request == request_str).first()
+
 Model.metadata.create_all(engine)#类型建立后,才能这样建立表

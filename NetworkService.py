@@ -1,7 +1,6 @@
 # coding:utf-8
 import requests
 from Response import Response
-import SqlDBHelper as db
 import logging
 
 class NetworkService(object):
@@ -29,17 +28,7 @@ class NetworkService(object):
 			r = self.session.get(request.url)
 		else:
 			raise NotImplementedError()
-		response = Response(body=r.content, url=r.url, status=r.status_code, meta=request.meta)
-
-		self._store_request_response(request, response)
-
-		return response
-
-	def _store_request_response(self, request, response):
-		request_response_pair = db.RequestResponseMap(request, response)
-		db.session.merge(request_response_pair)
-		db.session.commit()
-
+		return Response(body=r.content, url=r.url, status=r.status_code, meta=request.meta)
 
 
 
