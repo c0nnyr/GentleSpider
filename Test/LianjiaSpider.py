@@ -23,7 +23,7 @@ class LianjiaSider(BaseSpider):
 def main():
 	from NetworkService import NetworkService
 	from Dispatcher import Dispatcher
-	from BaseItemHandler import BaseItemHandler
+	from BaseHandler import BaseItemHandler
 	net = NetworkService()
 	dispatcher = Dispatcher()
 	item_handler = BaseItemHandler()

@@ -1,9 +1,9 @@
 # coding:utf-8
 
-from BaseItemHandler import BaseItemHandler
+from BaseHandler import BaseItemHandler
 import SqlDBHelper as db
 
-class SqlHandler(BaseItemHandler):
+class SqlItemHandler(BaseItemHandler):
 
 	def handle(self, item):
 		db.session.merge(item)

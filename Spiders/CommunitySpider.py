@@ -6,14 +6,17 @@ class CommunitySpider(BaseLianjiaSpider):
 	name = 'community'
 
 	COMMUNITY_URL = 'http://cd.lianjia.com/xiaoqu/{page}p%s/'
-	start_urls = (
-		COMMUNITY_URL.format(page='') % 1,#<0.5
-		COMMUNITY_URL.format(page='') % 2,#0.5~0.8
-		COMMUNITY_URL.format(page='') % 3,#0.8~1
-		COMMUNITY_URL.format(page='') % 4,#1~1.5
-		COMMUNITY_URL.format(page='') % 5,#1.5~2
-		COMMUNITY_URL.format(page='') % 6,#>2
-	)
+	
+	def __init__(self):
+		super(CommunitySpider, self).__init__()
+		self.start_urls = (
+			self.COMMUNITY_URL.format(page='') % 1,#<0.5
+			self.COMMUNITY_URL.format(page='') % 2,#0.5~0.8
+			self.COMMUNITY_URL.format(page='') % 3,#0.8~1
+			self.COMMUNITY_URL.format(page='') % 4,#1~1.5
+			self.COMMUNITY_URL.format(page='') % 5,#1.5~2
+			self.COMMUNITY_URL.format(page='') % 6,#>2
+		)
 
 	def parse(self, response):
 		#第0阶段就这这里，爬取start_urls的结果

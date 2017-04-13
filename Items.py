@@ -6,8 +6,7 @@ import datetime
 
 Model = declarative_base(name='Model')
 
-class LianJiaItem(Model):
-	__tablename__ = 'lianjiaitem'
+class LianJiaItem(object):
 	IS_ITEM = True
 
 	start_url = Column(Text())
@@ -27,7 +26,7 @@ class LianJiaItem(Model):
 	def get_today_str(delta=0):
 		return (datetime.date.today() + datetime.timedelta(delta)).strftime('%y-%m-%d')
 
-class CommunityItem(LianJiaItem):
+class CommunityItem(LianJiaItem, Model):
 	__tablename__ = 'community'
 
 	title = Column(Text())
@@ -40,7 +39,7 @@ class CommunityItem(LianJiaItem):
 	year_built = Column(Integer())
 	page = Column(Integer())
 
-class DealItem(LianJiaItem):
+class DealItem(LianJiaItem, Model):
 	__tablename__ = 'deal_item'
 
 	title = Column(Text())

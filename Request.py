@@ -1,6 +1,7 @@
 # coding:utf-8
 import urllib
 class Request(object):
+
 	def __init__(self, url, method='get', data=None, meta=None, callback=None, **kwargs):
 		self._url = url
 		self._data = data or {}

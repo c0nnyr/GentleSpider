@@ -42,9 +42,9 @@ class BaseLianjiaSpider(BaseSpider):
 			for page in xrange(2, total_pages + 1):
 				url = url_template.format(page='pg%s' % page)
 				start_url = url_template.format(page='')
-				if item_cls.check_page_crawled(page, count_per_page, start_url=start_url):
-					print 'has crawled already', url
-					continue
+				# if item_cls.check_page_crawled(page, count_per_page, start_url=start_url):
+				# 	print 'has crawled already', url
+				# 	continue
 				print 'requesting url', url
 				yield Request(url, meta={'page':page, 'start_url':start_url})
 

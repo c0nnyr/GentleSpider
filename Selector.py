@@ -41,6 +41,9 @@ class SelectorList(object):
 			return sel.extract()
 		return default
 
+	def __iter__(self):
+		return iter(self.selector_lst)
+
 	def __bool__(self):
 		return bool(self.selector_lst)
 	__nonzero__ = __bool__
@@ -88,7 +91,10 @@ class Selector(object):
 		try:
 			return etree.tostring(self.root, method=self.type, encoding=self.ENCODING_TYPE, with_tail=False)
 		except (AttributeError, TypeError):
-			return self.root.decode(self.ENCODING_TYPE)
+			if isinstance(self.root, str):
+				return self.root.decode(self.ENCODING_TYPE)
+			else:
+				return self.root
 
 	def __bool__(self):
 		return bool(self.extract())
