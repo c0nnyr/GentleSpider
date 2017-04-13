@@ -1,6 +1,7 @@
 # coding:utf-8
 import requests, urllib, urllib2
 from Response import Response
+import time, random
 
 class NetworkService(object):
 	#取自chrome的一次访问
@@ -20,13 +21,20 @@ class NetworkService(object):
 		session.headers.update(self.DEFAULT_HEADER)
 
 	def send_request(self, request):
-		print 'requesting', request.url
+		print 'NetworkService requesting', request.url
 		if request.method == 'post':
 			r = self.session.post(request.url, request.data)
 		elif request.method == 'get':
 			r = self.session.get(request.url)
 		else:
 			raise NotImplementedError()
+		self.random_wait()
 		return Response(body=r.content, url=r.url, status=r.status_code, request_response=r, meta=request.meta)
+
+	def random_wait(self):
+		delta = random.randint(5, 10)
+		time.sleep(delta)
+
+
 
 

@@ -1,6 +1,7 @@
 # coding:utf-8
+import urllib
 class Request(object):
-	def __init__(self, url, method='get', data=None, meta=None, callback=None):
+	def __init__(self, url, method='get', data=None, meta=None, callback=None, **kwargs):
 		self._url = url
 		self._data = data or {}
 		self._meta = meta or {}
@@ -22,3 +23,9 @@ class Request(object):
 	@property
 	def callback(self):
 		return self._callback
+
+
+	def __str__(self):
+		return '<Request {} {} {}>'.format(self._url, self._data, self._meta)
+	__repr__ = __str__
+

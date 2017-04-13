@@ -1,5 +1,6 @@
 # coding:utf-8
 from Request import Request
+import functools
 
 class BaseSpider(object):
 
@@ -11,3 +12,10 @@ class BaseSpider(object):
 
 	def parse(self, response):
 		pass
+
+	def try_validate(self, response, callback):
+		return []
+
+	@staticmethod
+	def pack(xpath, re_filter=None, default=0):
+		return xpath, re_filter, default#这个辅助解包用好
