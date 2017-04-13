@@ -1,7 +1,8 @@
 # coding:utf-8
-import requests, urllib, urllib2
+import requests
 from Response import Response
-import time, random
+import SqlDBHelper as db
+import logging
 
 class NetworkService(object):
 	#取自chrome的一次访问
@@ -21,19 +22,23 @@ class NetworkService(object):
 		session.headers.update(self.DEFAULT_HEADER)
 
 	def send_request(self, request):
-		print 'NetworkService requesting', request.url
+		logging.info('Requesting {}'.format(request))
 		if request.method == 'post':
 			r = self.session.post(request.url, request.data)
 		elif request.method == 'get':
 			r = self.session.get(request.url)
 		else:
 			raise NotImplementedError()
-		self.random_wait()
-		return Response(body=r.content, url=r.url, status=r.status_code, request_response=r, meta=request.meta)
+		response = Response(body=r.content, url=r.url, status=r.status_code, meta=request.meta)
 
-	def random_wait(self):
-		delta = random.randint(5, 10)
-		time.sleep(delta)
+		self._store_request_response(request, response)
+
+		return response
+
+	def _store_request_response(self, request, response):
+		request_response_pair = db.RequestResponseMap(request, response)
+		db.session.merge(request_response_pair)
+		db.session.commit()
 
 
 

@@ -1,5 +1,5 @@
 # coding:utf-8
-import urllib
+import cPickle
 class Request(object):
 
 	def __init__(self, url, method='get', data=None, meta=None, callback=None, **kwargs):
@@ -25,6 +25,8 @@ class Request(object):
 	def callback(self):
 		return self._callback
 
+	def dumps(self):
+		return cPickle.dumps(dict(url=self.url, data=self.data, meta=self.meta, method=self.method))
 
 	def __str__(self):
 		return '<Request {} {} {}>'.format(self._url, self._data, self._meta)

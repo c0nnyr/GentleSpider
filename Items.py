@@ -1,10 +1,7 @@
 # coding:utf-8
 from sqlalchemy import Column, Integer, String, Text, Float, create_engine, and_, or_
-from sqlalchemy.ext.declarative import declarative_base
 import SqlDBHelper as db
 import datetime
-
-Model = declarative_base(name='Model')
 
 class LianJiaItem(object):
 	IS_ITEM = True
@@ -26,7 +23,7 @@ class LianJiaItem(object):
 	def get_today_str(delta=0):
 		return (datetime.date.today() + datetime.timedelta(delta)).strftime('%y-%m-%d')
 
-class CommunityItem(LianJiaItem, Model):
+class CommunityItem(LianJiaItem, db.Model):
 	__tablename__ = 'community'
 
 	title = Column(Text())
@@ -39,7 +36,7 @@ class CommunityItem(LianJiaItem, Model):
 	year_built = Column(Integer())
 	page = Column(Integer())
 
-class DealItem(LianJiaItem, Model):
+class DealItem(LianJiaItem, db.Model):
 	__tablename__ = 'deal_item'
 
 	title = Column(Text())
@@ -53,4 +50,4 @@ class DealItem(LianJiaItem, Model):
 	days_when_sale = Column(Text())
 	page = Column(Integer())
 
-Model.metadata.create_all(db.engine)#类型建立后,才能这样建立表
+db.Model.metadata.create_all(db.engine)#类型建立后,才能这样建立表

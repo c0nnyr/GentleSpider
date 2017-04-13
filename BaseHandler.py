@@ -1,13 +1,17 @@
 # coding:utf-8
 
 class BaseItemHandler(object):
+	def open_spider(self): pass
+	def close_spider(self): pass
 	def handle(self, item):
 		print item.__dict__
 
 class BaseRequestHandler(object):
-	def handle(self, request):
-		pass
+	def open_spider(self): pass
+	def close_spider(self): pass
+	def handle(self, request): pass
 
 class BaseResponseHandler(object):
-	def handle(self, response):
-		pass
+	def open_spider(self): pass
+	def close_spider(self): pass
+	def handle(self, response): pass

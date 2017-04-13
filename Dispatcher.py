@@ -4,6 +4,7 @@ from BaseHandler import BaseItemHandler, BaseRequestHandler, BaseResponseHandler
 from BaseSpider import BaseSpider
 from Request import Request
 import GlobalMethod as M
+import itertools
 
 class Dispatcher(BaseObject):
 
@@ -15,10 +16,14 @@ class Dispatcher(BaseObject):
 		self._response_handler_list = []
 
 	def run(self, *spiders):
+		for handler in itertools.chain(self._item_handler_list, self._response_handler_list, self._request_handler_list):
+			handler.open_spider()
 		for spider in spiders:
 			assert isinstance(spider, BaseSpider), 'spider must be instance of BaseSpider'
 			request_or_items = spider.get_start_requests()
 			self._run(M.arg_to_iter(request_or_items))
+		for handler in itertools.chain(self._item_handler_list, self._response_handler_list, self._request_handler_list):
+			handler.close_spider()
 
 	def _run(self, request_or_items):
 		for request_or_item in request_or_items:
