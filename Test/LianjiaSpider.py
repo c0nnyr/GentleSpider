@@ -28,7 +28,7 @@ def main():
 	dispatcher = Dispatcher()
 	item_handler = BaseItemHandler()
 	dispatcher.set_network_service(net)
-	dispatcher.set_item_handler(item_handler)
+	dispatcher.add_item_handler(item_handler)
 
 	dispatcher.run(LianjiaSider())
 

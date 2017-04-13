@@ -11,10 +11,11 @@ class LianJiaItem(object):
 	original_data = Column(Text())
 	date = Column(Text(), primary_key=True)
 	id = Column(Integer(), primary_key=True)
+	request_response_id = Column(Integer())
 
 	def __init__(self, **kwargs):
 		super(LianJiaItem, self).__init__()
-		assert all((k in kwargs) for k in ('start_url', 'url', 'original_data', 'id')), "must contain keys 'start_url', 'url', 'original_data', 'id'"
+		assert all((k in kwargs) for k in ('start_url', 'url', 'original_data', 'id', 'request_response_id')), "must contain keys 'start_url', 'url', 'original_data', 'id'"
 		self.date = self.get_today_str()
 		for k, v in kwargs.iteritems():
 			setattr(self, k, v)

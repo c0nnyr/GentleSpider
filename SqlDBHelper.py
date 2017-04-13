@@ -12,6 +12,7 @@ Model = declarative_base(name='Model')
 class RequestResponseMap(Model):
 	__tablename__  = 'request_response_map'
 
+	id = Column(Integer(), autoincrement=True)
 	request = Column(Text(), primary_key=True)
 	response = Column(Text())
 

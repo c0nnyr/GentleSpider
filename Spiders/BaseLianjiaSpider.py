@@ -2,12 +2,14 @@
 from BaseSpider import BaseSpider
 import math, re, json, urllib
 from Request import Request
+import logging
 
 class BaseLianjiaSpider(BaseSpider):
 	VALIDATE_IMG_URL = 'http://captcha.lianjia.com/human'
 
 	@staticmethod
 	def pack(xpath, re_filter=None, default=0):
+		#设置好xpath,re提取,默认值
 		return xpath, re_filter, default#这个辅助解包用好
 
 	def _parse_items(self, response, item_xpath, attr_map, item_cls, dct_handler=None):
@@ -27,7 +29,7 @@ class BaseLianjiaSpider(BaseSpider):
 				dct = dct_handler(response, dct)
 			dct['start_url'] = response.meta.get('start_url', response.url)
 			dct['original_data'] = str(dct)
-			yield item_cls(**dct)
+			yield item_cls(request_response_id=response.id, **dct)
 
 	def _parse_pages(self, response, url_template, total_count_xpath, count_per_page, item_cls):
 		meta = response.meta
@@ -37,15 +39,13 @@ class BaseLianjiaSpider(BaseSpider):
 				total_pages = min(int(math.ceil(float(total_count) / count_per_page)), 100)#最多允许爬去100页
 			except:
 				total_pages = 0
-				total_count = 0
-			print 'find total pages', total_pages
+			logging.info('find total pages {} in response url {}'.format(total_pages, response.url))
 			for page in xrange(2, total_pages + 1):
 				url = url_template.format(page='pg%s' % page)
 				start_url = url_template.format(page='')
 				# if item_cls.check_page_crawled(page, count_per_page, start_url=start_url):
 				# 	print 'has crawled already', url
 				# 	continue
-				print 'requesting url', url
 				yield Request(url, meta={'page':page, 'start_url':start_url})
 
 	@staticmethod
@@ -53,9 +53,11 @@ class BaseLianjiaSpider(BaseSpider):
 		dct['page'] = response.meta.get('page', 1)
 		return dct
 
+	def is_valid_response(self, response):
+		return 'captcha.lianjia.com/' not in response.url
 
 	def try_validate(self, response, func):
-		if 'captcha.lianjia.com/' in response.url:
+		if not self.is_valid_response(response):
 			print 'validating...'
 			#csrf_xpath = '/html/body/div/div[2]/div[1]/ul/form/input[3]/@value'#does not work, cannot find form
 			#csrf = response.xpath(csrf_xpath).extract_first()

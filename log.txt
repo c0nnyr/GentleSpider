@@ -1,2 +1,0 @@
-Thu, 13 Apr 2017 13:01:24 connectionpool.py[line:213] INFO Starting new HTTP connection (1): cd.lianjia.com
-Thu, 13 Apr 2017 13:01:25 connectionpool.py[line:395] DEBUG "GET /xiaoqu/p1/ HTTP/1.1" 200 None

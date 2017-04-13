@@ -11,5 +11,5 @@ class LianjiaValidateWarnResponseHandler(BaseResponseHandler):
 	def handle(self, response):
 		if 'captcha.lianjia.com/' in response.url:
 			self.validate_count += 1
-		if self.validate_count > 100:
+		if self.validate_count > 20:
 			raise Exception('LianjiaValidateWarnResponseHandler ends spider')

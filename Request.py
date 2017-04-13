@@ -2,7 +2,7 @@
 import cPickle
 class Request(object):
 
-	def __init__(self, url, method='get', data=None, meta=None, callback=None, use_cache=False, cache_valid_duration=10):
+	def __init__(self, url, method='get', data=None, meta=None, callback=None, use_cache=False, cache_valid_duration=10, **kwargs):
 		self._url = url
 		self._data = data or {}
 		self._meta = meta or {}

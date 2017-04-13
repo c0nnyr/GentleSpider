@@ -3,12 +3,13 @@ from Request import Request
 import functools
 
 class BaseSpider(object):
+	USE_CACHE = False
 
 	def __init__(self, start_urls=()):
 		self.start_urls = start_urls
 
 	def get_start_requests(self):
-		return [Request(start_url, callback=self.parse) for start_url in self.start_urls]
+		return [Request(start_url, use_cache=self.USE_CACHE) for start_url in self.start_urls]
 
 	def parse(self, response):
 		pass
