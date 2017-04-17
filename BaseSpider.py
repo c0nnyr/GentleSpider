@@ -1,12 +1,14 @@
 # coding:utf-8
 from Request import Request
-import functools
+import re
 
 class BaseSpider(object):
 	USE_CACHE = False
+	start_urls = ()
 
 	def __init__(self, start_urls=()):
-		self.start_urls = start_urls
+		if start_urls:
+			self.start_urls = start_urls
 
 	def get_start_requests(self):
 		return [Request(start_url, use_cache=self.USE_CACHE) for start_url in self.start_urls]
@@ -19,3 +21,27 @@ class BaseSpider(object):
 
 	def is_valid_response(self, response):
 		return True
+
+	@staticmethod
+	def pack(xpath, re_filter=None, default=0):
+		#设置好xpath,re提取,默认值
+		return xpath, re_filter, default#这个辅助解包用好
+
+	def _parse_items(self, response, item_xpath, attr_map, item_cls, dct_handler=None):
+		sel_items = response.xpath(item_xpath)
+		for sel in sel_items:
+			dct = {}
+			for attr, item in attr_map.iteritems():
+				xpath, re_filter, default = item
+				content = ''.join(sel.xpath(xpath).extract())#对于year_built，有多项
+				if re_filter:
+					try:
+						content = re.search(re_filter, content).group('extract')
+					except:
+						content = default
+				dct[attr] = content
+			if dct_handler:
+				dct = dct_handler(response, dct)
+			dct['start_url'] = response.meta.get('start_url', response.url)
+			dct['original_data'] = str(dct)
+			yield item_cls(request_response_id=response.id, **dct)

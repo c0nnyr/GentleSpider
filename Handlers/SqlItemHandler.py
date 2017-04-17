@@ -1,10 +1,14 @@
 # coding:utf-8
 
 from BaseHandler import BaseItemHandler
-import SqlDBHelper as db
+import SqlDBHelper
 
 class SqlItemHandler(BaseItemHandler):
 
 	def handle(self, item):
-		db.session.merge(item)
-		db.session.commit()
+		if isinstance(item, (SqlDBHelper.RequestResponseMap, SqlDBHelper.ProxyItem)):
+			from SqlDBHelper import session as db
+		else:
+			from Items import session as db
+		db.merge(item)
+		db.commit()

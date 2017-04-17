@@ -7,30 +7,6 @@ import logging
 class BaseLianjiaSpider(BaseSpider):
 	VALIDATE_IMG_URL = 'http://captcha.lianjia.com/human'
 
-	@staticmethod
-	def pack(xpath, re_filter=None, default=0):
-		#设置好xpath,re提取,默认值
-		return xpath, re_filter, default#这个辅助解包用好
-
-	def _parse_items(self, response, item_xpath, attr_map, item_cls, dct_handler=None):
-		sel_items = response.xpath(item_xpath)
-		for sel in sel_items:
-			dct = {}
-			for attr, item in attr_map.iteritems():
-				xpath, re_filter, default = item
-				content = ''.join(sel.xpath(xpath).extract())#对于year_built，有多项
-				if re_filter:
-					try:
-						content = re.search(re_filter, content).group('extract')
-					except:
-						content = default
-				dct[attr] = content
-			if dct_handler:
-				dct = dct_handler(response, dct)
-			dct['start_url'] = response.meta.get('start_url', response.url)
-			dct['original_data'] = str(dct)
-			yield item_cls(request_response_id=response.id, **dct)
-
 	def _parse_pages(self, response, url_template, total_count_xpath, count_per_page, item_cls):
 		meta = response.meta
 		if not meta.get('page'):

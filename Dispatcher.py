@@ -5,8 +5,8 @@ from BaseSpider import BaseSpider
 from Request import Request
 import GlobalMethod as M
 import itertools, logging
-import SqlDBHelper as db
-
+from SqlDBHelper import session as db
+from SqlDBHelper import ProxyItem, RequestResponseMap
 
 class Dispatcher(BaseObject):
 
@@ -30,21 +30,21 @@ class Dispatcher(BaseObject):
 	def _run(self, request_or_items, spider):
 		for request_or_item in request_or_items:
 			if M.is_item(request_or_item):
-				logging.debug('Find item {}'.format(request_or_item.__dict__))
+				logging.info('Find item {}'.format(request_or_item.__dict__))
 				for handler in self._item_handler_list:
 					try:
 						handler.handle(request_or_item)
 					except Exception as ex:
-						logging.info('Exception happens when using {}, {}'.format(ex, handler))
+						logging.info('Exception {} happens when using {}'.format(ex, handler))
 			elif isinstance(request_or_item, Request):
 				for handler in self._request_handler_list:
 					try:
 						handler.handle(request_or_item)
 					except Exception as ex:
-						logging.info('Exception happens when using {} {}'.format(ex, handler))
+						logging.info('Exception {} happens when using {}'.format(ex, handler))
 						break
 				else:
-					callback = getattr(spider, request_or_item.callback or 'parse', None)
+					callback = getattr(spider, request_or_item.callback or 'parse', None)#默认用parse函数
 					response = None
 					request_response_id = -1
 					if request_or_item.use_cache:
@@ -57,7 +57,19 @@ class Dispatcher(BaseObject):
 							logging.info('Exception {} happens when try find request map'.format(ex))
 							response = None
 					if not response:
-						response = self._network_service.send_request(request_or_item)
+						while True:
+							#proxies = self.choose_proxies(request_or_item.url)
+							proxies = {'http': '180.173.123.34:9797'}
+							try:
+								logging.info('try using proxies {}'.format(proxies))
+								response = self._network_service.send_request(request_or_item, proxies=proxies, timeout=10)
+								if response.status != 200:
+									raise Exception('status is not 200, boyd {}'.format(response.body))
+								break
+							except Exception as ex:
+								logging.info('Exception {} happens when sending request with proxies {}'.format(ex, proxies))
+								if proxies:
+									self.score_proxies(proxies, 0)
 						if spider.is_valid_response(response):
 							request_response_id = self._store_request_response(request_or_item, response)
 					response.set_request_response_id(request_response_id)
@@ -65,7 +77,7 @@ class Dispatcher(BaseObject):
 						try:
 							handler.handle(response)
 						except Exception as ex:
-							logging.info('Exception happens when using {} {}'.format(ex, handler))
+							logging.info('Exception {} happens when using {}'.format(ex, handler))
 							break
 					else:
 						if callback:
@@ -92,8 +104,14 @@ class Dispatcher(BaseObject):
 		self._response_handler_list.append(response_handler)
 
 	def _store_request_response(self, request, response):
-		request_response_pair = db.RequestResponseMap(request, response)
-		db.session.merge(request_response_pair)
-		db.session.commit()
+		request_response_pair = RequestResponseMap(request, response)
+		db.merge(request_response_pair)
+		db.commit()
 		return request_response_pair.id
+
+	def choose_proxies(self, url):
+		return ProxyItem.get_proxies(url)
+	def score_proxies(self, proxies, score):
+		return ProxyItem.score_proxies(proxies, score)
+
 

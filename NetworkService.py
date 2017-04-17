@@ -20,12 +20,13 @@ class NetworkService(object):
 		self.session = session = requests.Session()
 		session.headers.update(self.DEFAULT_HEADER)
 
-	def send_request(self, request):
+	def send_request(self, request, **kwargs):
 		logging.info('Requesting {}'.format(request))
+
 		if request.method == 'post':
-			r = self.session.post(request.url, request.data)
+			r = self.session.post(request.url, request.data, **kwargs)
 		elif request.method == 'get':
-			r = self.session.get(request.url)
+			r = self.session.get(request.url, **kwargs)
 		else:
 			raise NotImplementedError()
 		return Response(body=r.content, url=r.url, status=r.status_code, meta=request.meta)

@@ -1,7 +1,13 @@
 # coding:utf-8
-from sqlalchemy import Column, Integer, String, Text, Float, create_engine, and_, or_
-import SqlDBHelper as db
 import datetime
+from sqlalchemy.orm import sessionmaker
+from sqlalchemy.ext.declarative import declarative_base
+from sqlalchemy import Column, Integer, String, Text, Float, create_engine, and_, or_, DateTime
+
+engine = create_engine('sqlite:///data.sqlite')
+session_marker = sessionmaker(bind=engine)
+session = session_marker()
+Model = declarative_base(name='Model')
 
 class LianJiaItem(object):
 	IS_ITEM = True
@@ -24,7 +30,7 @@ class LianJiaItem(object):
 	def get_today_str(delta=0):
 		return (datetime.date.today() + datetime.timedelta(delta)).strftime('%y-%m-%d')
 
-class CommunityItem(LianJiaItem, db.Model):
+class CommunityItem(LianJiaItem, Model):
 	__tablename__ = 'community'
 
 	title = Column(Text())
@@ -37,8 +43,8 @@ class CommunityItem(LianJiaItem, db.Model):
 	year_built = Column(Integer())
 	page = Column(Integer())
 
-class DealItem(LianJiaItem, db.Model):
-	__tablename__ = 'deal_item'
+class DealItem(LianJiaItem, Model):
+	__tablename__ = 'deal'
 
 	title = Column(Text())
 	total_price = Column(Text())
@@ -51,4 +57,4 @@ class DealItem(LianJiaItem, db.Model):
 	days_when_sale = Column(Text())
 	page = Column(Integer())
 
-db.Model.metadata.create_all(db.engine)#类型建立后,才能这样建立表
+Model.metadata.create_all(engine)#类型建立后,才能这样建立表

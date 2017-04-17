@@ -5,11 +5,11 @@ import re, math, json
 from Request import Request
 import GlobalMethod as M
 
-class LianjiaSider(BaseSpider):
+class LianjiaSiderTest(BaseSpider):
 	RESBLOCK_URL = 'http://cd.lianjia.com/ershoufang/{page}c{rid}/'
 	COMMUNITY_ITEM_INFO_RE = r'''require\(\['ershoufang/sellList/index'\],\s*?function\s*?\(main\)\s*?\{\s*?main\((?P<extract>(\s|\S)*?)\);\s*?\}\);'''
 	def __init__(self):
-		super(LianjiaSider, self).__init__()
+		super(LianjiaSiderTest, self).__init__()
 		self.rid = 1611041529992#望江嘉园
 		self.start_urls = (self.RESBLOCK_URL.format(rid=self.rid, page=''), )
 
@@ -32,7 +32,7 @@ def main():
 	dispatcher.set_network_service(net)
 	dispatcher.add_item_handler(item_handler)
 
-	dispatcher.run(LianjiaSider())
+	dispatcher.run(LianjiaSiderTest())
 
 if __name__ == '__main__':
 	main()
