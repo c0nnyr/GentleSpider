@@ -58,8 +58,7 @@ class Dispatcher(BaseObject):
 							response = None
 					if not response:
 						while True:
-							#proxies = self.choose_proxies(request_or_item.url)
-							proxies = {'http': '180.173.123.34:9797'}
+							proxies = self.choose_proxies(request_or_item.url)
 							try:
 								logging.info('try using proxies {}'.format(proxies))
 								response = self._network_service.send_request(request_or_item, proxies=proxies, timeout=10)
@@ -102,6 +101,11 @@ class Dispatcher(BaseObject):
 	def add_response_handler(self, response_handler):
 		assert isinstance(response_handler, BaseResponseHandler), 'response handler must be instance of BaseResponseHandler'
 		self._response_handler_list.append(response_handler)
+
+	def remove_all_handlers(self):
+		self._item_handler_list = []
+		self._request_handler_list = []
+		self._response_handler_list = []
 
 	def _store_request_response(self, request, response):
 		request_response_pair = RequestResponseMap(request, response)
