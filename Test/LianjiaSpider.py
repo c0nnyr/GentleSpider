@@ -3,6 +3,7 @@ from BaseSpider import BaseSpider
 from BaseItem import BaseItem
 import re, math, json
 from Request import Request
+import GlobalMethod as M
 
 class LianjiaSider(BaseSpider):
 	RESBLOCK_URL = 'http://cd.lianjia.com/ershoufang/{page}c{rid}/'
@@ -12,6 +13,7 @@ class LianjiaSider(BaseSpider):
 		self.rid = 1611041529992#望江嘉园
 		self.start_urls = (self.RESBLOCK_URL.format(rid=self.rid, page=''), )
 
+	@M.check_validate_auto_redirect
 	def parse(self, response):
 		print response.url
 		print response.re(self.COMMUNITY_ITEM_INFO_RE)

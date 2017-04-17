@@ -2,6 +2,8 @@
 from BaseLianjiaSpider import BaseLianjiaSpider
 import re
 from Items import CommunityItem
+import GlobalMethod as M
+
 class CommunitySpider(BaseLianjiaSpider):
 	name = 'community'
 
@@ -18,6 +20,7 @@ class CommunitySpider(BaseLianjiaSpider):
 			self.COMMUNITY_URL.format(page='') % 6,#>2
 		)
 
+	@M.check_validate_auto_redirect
 	def parse(self, response):
 		#第0阶段就这这里，爬取start_urls的结果
 		xpath = '/html/body/div[4]/div[1]/ul/li'

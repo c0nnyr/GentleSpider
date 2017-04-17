@@ -16,7 +16,7 @@ def check_validate_auto_redirect(func):
 	@functools.wraps(func)
 	def _func(self, response):
 		need_validate = False
-		for r in self.try_validate(response, functools.partial(_func, self)):
+		for r in self.try_validate(response, func.__name__):
 			need_validate = True
 			yield r
 		if not need_validate:

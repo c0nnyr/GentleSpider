@@ -68,7 +68,7 @@ class BaseLianjiaSpider(BaseSpider):
 				print 'original_url', url
 				meta = {'_validate_csrf':csrf, '_validate_func':func, '_validate_url':url}
 				meta.update(response.meta)
-				yield Request(self.VALIDATE_IMG_URL, callback=self._parse_validate_imgs, meta=meta, dont_filter=True)#不参与去重
+				yield Request(self.VALIDATE_IMG_URL, callback='_parse_validate_imgs', meta=meta, dont_filter=True)#不参与去重
 			except:
 				print 'cannot find csrf in ', response.body
 
@@ -78,7 +78,7 @@ class BaseLianjiaSpider(BaseSpider):
 		formdata = {'_csrf':csrf, 'uuid':dct['uuid'], 'bitvalue':'2'}
 		meta = {'_validate_csrf':csrf, '_validate_func':response.meta.get('_validate_func'), '_validate_url':response.meta.get('_validate_url')}
 		meta.update(response.meta)
-		yield Request(self.VALIDATE_IMG_URL, method='post', callback=self._try_validate_once, data=formdata, meta=meta, dont_filter=True)
+		yield Request(self.VALIDATE_IMG_URL, method='post', callback='_try_validate_once', data=formdata, meta=meta, dont_filter=True)
 
 	def _try_validate_once(self, response):
 		print response.body, response.url
@@ -86,7 +86,7 @@ class BaseLianjiaSpider(BaseSpider):
 			csrf = response.meta.get('_validate_csrf')
 			meta = {'_validate_csrf':csrf, '_validate_func':response.meta.get('_validate_func'), '_validate_url':response.meta.get('_validate_url')}
 			meta.update(response.meta)
-			yield Request(self.VALIDATE_IMG_URL, callback=self._parse_validate_imgs, meta=meta, dont_filter=True)
+			yield Request(self.VALIDATE_IMG_URL, callback='_parse_validate_imgs', meta=meta, dont_filter=True)
 		else:
 			print 'finish validating'
 			func = response.meta.get('_validate_func')

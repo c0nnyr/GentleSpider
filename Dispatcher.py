@@ -30,7 +30,7 @@ class Dispatcher(BaseObject):
 	def _run(self, request_or_items, spider):
 		for request_or_item in request_or_items:
 			if M.is_item(request_or_item):
-				logging.info('Find item {}'.format(request_or_item.__dict__))
+				logging.debug('Find item {}'.format(request_or_item.__dict__))
 				for handler in self._item_handler_list:
 					try:
 						handler.handle(request_or_item)
@@ -44,7 +44,7 @@ class Dispatcher(BaseObject):
 						logging.info('Exception happens when using {} {}'.format(ex, handler))
 						break
 				else:
-					callback = request_or_item.callback or spider.parse
+					callback = getattr(spider, request_or_item.callback or 'parse', None)
 					response = None
 					request_response_id = -1
 					if request_or_item.use_cache:
