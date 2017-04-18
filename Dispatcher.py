@@ -59,12 +59,19 @@ class Dispatcher(BaseObject):
 					if not response:
 						while True:
 							proxies = self.choose_proxies(request_or_item.url)
+							proxies =  {'http': '114.215.24.136:80'}
 							try:
 								logging.info('try using proxies {}'.format(proxies))
 								response = self._network_service.send_request(request_or_item, proxies=proxies, timeout=10)
 								if response.status != 200:
 									raise Exception('status is not 200, boyd {}'.format(response.body))
-								break
+								if not spider.is_valid_response(response):
+									logging.info('Need validate, escape this proxiey {}'.format(proxies))
+								elif not response.url.startswith(request_or_item.url):
+									logging.info('Received response.url {} is not the same with request {}, body {}'.\
+												 format(response.url, request_or_item.url, response.body))
+								else:
+									break
 							except Exception as ex:
 								logging.info('Exception {} happens when sending request with proxies {}'.format(ex, proxies))
 								if proxies:
