@@ -33,6 +33,13 @@ class Request(object):
 	def dumps(self):
 		return cPickle.dumps(dict(url=self.url, data=self.data, meta=self.meta, method=self.method))
 
+	@classmethod
+	def loads(cls, s):
+		if isinstance(s, unicode):
+			s = s.encode('utf-8')
+		dct = cPickle.loads(s)
+		return cls(**dct)
+
 	def __str__(self):
 		return '<Request {} {} {}>'.format(self._url, self._data, self._meta)
 	__repr__ = __str__

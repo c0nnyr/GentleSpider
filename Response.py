@@ -31,6 +31,13 @@ class Response(object):
     def dumps(self):
         return cPickle.dumps(dict(url=self.url, status=self.status, body=self.body, meta=self.meta))
 
+    @classmethod
+    def loads(cls, s):
+        if isinstance(s, unicode):
+            s = s.encode('utf-8')
+        dct = cPickle.loads(s)
+        return cls(**dct)
+
     def xpath(self, query, **kwargs):
         return self._selector.xpath(query, **kwargs)
 

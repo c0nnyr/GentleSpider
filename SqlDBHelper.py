@@ -3,16 +3,19 @@ from sqlalchemy.orm import sessionmaker
 from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy import Column, Integer, String, Text, Float, create_engine, and_, or_, DateTime
 import datetime, random, logging
+from Request import Request
+from Response import Response
 
 engine = create_engine('sqlite:///sys.sqlite')
 session_marker = sessionmaker(bind=engine)
 session = session_marker()
 Model = declarative_base(name='Model')
 
+
 class RequestResponseMap(Model):
 	__tablename__  = 'request_response_map'
 
-	id = Column(Integer(), autoincrement=True)
+	id = Column(Integer(), primary_key=True, autoincrement=True)
 	request = Column(Text(), primary_key=True)
 	response = Column(Text())
 
@@ -22,10 +25,17 @@ class RequestResponseMap(Model):
 		super(RequestResponseMap, self).__init__()
 		if request:
 			self.request = request.dumps()
+			self.id = self.gen_id()
 		if response:
 			self.response = response.dumps()
 
 		self.request_time = datetime.datetime.now()
+
+	_ID = 0
+	@classmethod
+	def gen_id(cls):
+		cls._ID += 1
+		return cls._ID
 
 	@classmethod
 	def get(cls, request):

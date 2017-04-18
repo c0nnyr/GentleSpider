@@ -16,6 +16,7 @@ class Dispatcher(BaseObject):
 		self._item_handler_list = []
 		self._request_handler_list = []
 		self._response_handler_list = []
+		self._proxies = None
 
 	def run(self, *spiders):
 		for handler in itertools.chain(self._item_handler_list, self._response_handler_list, self._request_handler_list):
@@ -58,25 +59,25 @@ class Dispatcher(BaseObject):
 							response = None
 					if not response:
 						while True:
-							proxies = self.choose_proxies(request_or_item.url)
+							if not self._proxies:
+								self._proxies = self.choose_proxies(request_or_item.url)
+								logging.info('try using proxies {}'.format(self._proxies))
+							if not self._proxies:
+								raise Exception('no proxy to use')
 							try:
-								logging.info('try using proxies {}'.format(proxies))
-								response = self._network_service.send_request(request_or_item, proxies=proxies, timeout=10)
+								response = self._network_service.send_request(request_or_item, proxies=self._proxies, timeout=10)
 								if response.status != 200:
-									raise Exception('status is not 200, boyd {}'.format(response.body))
-								if not spider.is_valid_response(response):
-									logging.info('Need validate, escape this proxiey {}'.format(proxies))
-								elif not response.url.startswith(request_or_item.url):
-									logging.info('Received response.url {} is not the same with request {}, body {}'.\
-												 format(response.url, request_or_item.url, response.body))
+									raise Exception('status is not 200, body {}'.format(response.body))
+								elif not spider.is_valid_response(response):
+									raise Exception('not valid response {}, escape this proxiey {}'.format(response.body, self._proxies))
 								else:
 									break
 							except Exception as ex:
-								logging.info('Exception {} happens when sending request with proxies {}'.format(ex, proxies))
-								if proxies:
-									self.score_proxies(proxies, 0)
-						if spider.is_valid_response(response):
-							request_response_id = self._store_request_response(request_or_item, response)
+								logging.info('Exception {} happens when sending request with proxies {}'.format(ex, self._proxies))
+								if self._proxies:
+									self.score_proxies(self._proxies, 0)
+									self._proxies = None
+						request_response_id = self._store_request_response(request_or_item, response)
 					response.set_request_response_id(request_response_id)
 					for handler in self._response_handler_list:
 						try:

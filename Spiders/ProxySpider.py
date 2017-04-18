@@ -6,9 +6,9 @@ import GlobalMethod as M
 
 class ProxySpider(BaseSpider):
 	start_urls = [ 'http://www.xicidaili.com/nn',] +\
-		['http://www.xicidaili.com/nn/{}'.format(ind) for ind in xrange(2, 10)] + \
+		['http://www.xicidaili.com/nn/{}'.format(ind) for ind in xrange(2, 20)] + \
 		['http://www.xicidaili.com/nt/'] + \
-		['http://www.xicidaili.com/nt/{}'.format(ind) for ind in xrange(2, 10)]
+		['http://www.xicidaili.com/nt/{}'.format(ind) for ind in xrange(2, 20)]
 
 	def parse(self, response):
 		#xpath = '//*[@id="ip_list"]/tbody/tr[position()>1]'

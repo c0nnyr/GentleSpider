@@ -1,24 +1,29 @@
 # coding:utf-8
 from BaseLianjiaSpider import BaseLianjiaSpider
-import re
+import re, logging
 from Items import CommunityItem
 import GlobalMethod as M
+from Request import Request
 
 class CommunitySpider(BaseLianjiaSpider):
 	name = 'community'
 
-	COMMUNITY_URL = 'http://cd.lianjia.com/xiaoqu/{page}p%s/'
-	
-	def __init__(self):
-		super(CommunitySpider, self).__init__()
-		self.start_urls = (
-			self.COMMUNITY_URL.format(page='') % 4,#1~1.5
-			self.COMMUNITY_URL.format(page='') % 5,#1.5~2
-			self.COMMUNITY_URL.format(page='') % 3,#0.8~1
-			self.COMMUNITY_URL.format(page='') % 2,#0.5~0.8
-			self.COMMUNITY_URL.format(page='') % 1,#<0.5
-			self.COMMUNITY_URL.format(page='') % 6,#>2
-		)
+	COMMUNITY_URL = 'http://cd.lianjia.com/xiaoqu/{page}p{price_level}/'
+	metas = [
+		{'price_level':4},#1~1.5
+		{'price_level':5},#1.5~2
+		{'price_level':3},#0.8~1
+		{'price_level':2},#0.5~0.8
+		{'price_level':1},#<0.5
+		{'price_level':6},#>2
+	]
+	start_urls = [COMMUNITY_URL.format(page='', price_level=meta['price_level']) for meta in metas]
+	for start_url, meta in zip(start_urls, metas):
+		meta['start_url'] = start_url
+		meta['page'] = 1
+
+	def is_valid_response(self, response):
+		return bool(response.xpath('/html/body/div[4]/div[1]'))#至少存在这个
 
 	def parse(self, response):
 		#第0阶段就这这里，爬取start_urls的结果
@@ -38,10 +43,16 @@ class CommunitySpider(BaseLianjiaSpider):
 		}
 
 		#正式开始解析
+		item_count = 0
 		for item in self._parse_items(response, xpath, attr_map, CommunityItem, self.add_page):
+			item_count += 1
 			yield item
 
-		price_level = re.search(r'p(\d)', response.url).group(1)
-		for r in self._parse_pages(response, self.COMMUNITY_URL % price_level, '/html/body/div[4]/div[1]/div[2]/h2/span/text()', 30, CommunityItem):
-			#这里虽然提供了一个总小区个数,但是只提供了100页可以浏览....
-			yield r
+		cur_page = response.meta['page']
+		price_level = response.meta['price_level']
+		start_url = response.meta['start_url']
+		if item_count == 30 and cur_page < 100:#说明不是最后一页了
+			url = self.COMMUNITY_URL.format(page='pg%d' % cur_page + 1, price_level=price_level)
+			yield Request(url, meta={'price_level':price_level, 'page':cur_page + 1, 'start_url':start_url})
+		else:
+			logging.info('finish start_url {}'.format(start_url))

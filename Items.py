@@ -57,4 +57,7 @@ class DealItem(LianJiaItem, Model):
 	days_when_sale = Column(Text())
 	page = Column(Integer())
 
+class HouseItem(LianJiaItem, Model):
+	__tablename__ = 'house'
+
 Model.metadata.create_all(engine)#类型建立后,才能这样建立表

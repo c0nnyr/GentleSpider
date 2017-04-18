@@ -5,13 +5,17 @@ import re
 class BaseSpider(object):
 	USE_CACHE = False
 	start_urls = ()
+	metas = ()
 
 	def __init__(self, start_urls=()):
 		if start_urls:
 			self.start_urls = start_urls
 
 	def get_start_requests(self):
-		return [Request(start_url, use_cache=self.USE_CACHE) for start_url in self.start_urls]
+		if len(self.metas) == len(self.start_urls):
+			return [Request(start_url, use_cache=self.USE_CACHE, meta=meta) for start_url, meta in zip(self.start_urls, self.metas)]
+		else:
+			return [Request(start_url, use_cache=self.USE_CACHE) for start_url in self.start_urls]
 
 	def parse(self, response):
 		pass
