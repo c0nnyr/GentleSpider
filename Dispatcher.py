@@ -59,7 +59,6 @@ class Dispatcher(BaseObject):
 					if not response:
 						while True:
 							proxies = self.choose_proxies(request_or_item.url)
-							proxies =  {'http': '114.215.24.136:80'}
 							try:
 								logging.info('try using proxies {}'.format(proxies))
 								response = self._network_service.send_request(request_or_item, proxies=proxies, timeout=10)
