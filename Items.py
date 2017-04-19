@@ -47,14 +47,14 @@ class DealItem(LianJiaItem, Model):
 	__tablename__ = 'deal'
 
 	title = Column(Text())
+	house_info = Column(Text())
 	total_price = Column(Text())
+	position_info = Column(Text())
+	deal_platform = Column(Text())
 	price_per_sm = Column(Text())
-	deal_by = Column(Text())
-	description = Column(Text())
-	description2 = Column(Text())
-	district_description = Column(Text())
-	price_when_on = Column(Text())
-	days_when_sale = Column(Text())
+	deal_house_text = Column(Text())
+	deal_cycle_txt = Column(Text())
+
 	page = Column(Integer())
 
 class HouseItem(LianJiaItem, Model):
