@@ -9,7 +9,7 @@ from SqlDBHelper import session as db
 from SqlDBHelper import ProxyItem, RequestResponseMap
 
 class Dispatcher(BaseObject):
-
+	REQUEST_COUNT_THRESHOLD = 50
 	def __init__(self):
 		super(Dispatcher, self).__init__()
 		self._network_service = None
@@ -17,6 +17,7 @@ class Dispatcher(BaseObject):
 		self._request_handler_list = []
 		self._response_handler_list = []
 		self._proxies = None
+		self._cur_proxy_request_count = 0
 
 	def run(self, *spiders):
 		for handler in itertools.chain(self._item_handler_list, self._response_handler_list, self._request_handler_list):
@@ -59,9 +60,11 @@ class Dispatcher(BaseObject):
 							response = None
 					if not response:
 						while True:
-							if not self._proxies:
+							if not self._proxies or self._cur_proxy_request_count > self.REQUEST_COUNT_THRESHOLD:
 								self._proxies = self.choose_proxies(request_or_item.url)
 								logging.info('try using proxies {}'.format(self._proxies))
+								if self._proxies:
+									self._cur_proxy_request_count = 0
 							try:
 								response = self._network_service.send_request(request_or_item, proxies=self._proxies, timeout=10)
 								if response.status != 200:
@@ -69,6 +72,7 @@ class Dispatcher(BaseObject):
 								elif not spider.is_valid_response(response):
 									raise Exception('not valid response {}, escape this proxiey {}'.format(response.body, self._proxies))
 								else:
+									self._cur_proxy_request_count += 1
 									break
 							except Exception as ex:
 								logging.info('Exception {} happens when sending request with proxies {}'.format(ex, self._proxies))
