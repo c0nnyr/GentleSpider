@@ -11,6 +11,6 @@ import pprint
 if __name__ == '__main__':
 	for item in db.query(RequestResponseMap).all():
 		item = Response.loads(item.response)
-		if '/p3/' in item.url:
+		if '/11/' in item.url:
 			pprint.pprint(item.__dict__)
 			print item.body

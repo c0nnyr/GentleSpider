@@ -11,7 +11,10 @@ class BaseProxySpider(BaseSpider):
 	def transform_time_to_seconds(cls, t):
 		if t is None:
 			return sys.maxint
-		digits = float(re.search(cls.digits_pattern, t).group(0))
+		try:
+			digits = float(re.search(cls.digits_pattern, t).group(0))
+		except:
+			return 0
 		if u'毫秒' in t:
 			return digits / 1000.0
 		elif u'秒' in t:

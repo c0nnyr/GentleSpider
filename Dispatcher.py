@@ -9,7 +9,7 @@ from SqlDBHelper import session as db
 from SqlDBHelper import ProxyItem, RequestResponseMap
 
 class Dispatcher(BaseObject):
-	REQUEST_COUNT_THRESHOLD = 50
+	REQUEST_COUNT_THRESHOLD = 10
 	def __init__(self):
 		super(Dispatcher, self).__init__()
 		self._network_service = None
@@ -18,6 +18,10 @@ class Dispatcher(BaseObject):
 		self._response_handler_list = []
 		self._proxies = None
 		self._cur_proxy_request_count = 0
+		self._enable_score_proxy = True
+
+	def enable_score_proxy(self, b):
+		self._enable_score_proxy = b
 
 	def run(self, *spiders):
 		for handler in itertools.chain(self._item_handler_list, self._response_handler_list, self._request_handler_list):
@@ -77,7 +81,8 @@ class Dispatcher(BaseObject):
 							except Exception as ex:
 								logging.info('Exception {} happens when sending request with proxies {}'.format(ex, self._proxies))
 								if self._proxies:
-									self.score_proxies(self._proxies, 0)
+									if self._enable_score_proxy:
+										self.score_proxies(self._proxies, 0)
 									self._proxies = None
 								else:
 									raise Exception('no proxy to use anymore')

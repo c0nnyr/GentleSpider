@@ -21,6 +21,7 @@ def community():
 
 	dispatcher.add_request_handler(RandomWaitRequestHandler.RandomWaitRequestHandler())
 
+	dispatcher.enable_score_proxy(True)
 	dispatcher.run(CommunitySpider.CommunitySpider())
 
 def proxy():
@@ -31,6 +32,7 @@ def proxy():
 
 	dispatcher.add_request_handler(RandomWaitRequestHandler.RandomWaitRequestHandler())
 
+	dispatcher.enable_score_proxy(False)
 	dispatcher.run(ProxySpider.ProxySpider2())
 	dispatcher.run(ProxySpider.ProxySpider1())
 
