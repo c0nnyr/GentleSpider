@@ -37,12 +37,15 @@ class BaseSpider(object):
 			dct = {}
 			for attr, item in attr_map.iteritems():
 				xpath, re_filter, default = item
-				content = ''.join(sel.xpath(xpath).extract())#对于year_built，有多项
-				if re_filter:
-					try:
-						content = re.search(re_filter, content).group('extract')
-					except:
-						content = default
+				if not xpath:
+					content = default
+				else:
+					content = ''.join(sel.xpath(xpath).extract())#对于year_built，有多项
+					if re_filter:
+						try:
+							content = re.search(re_filter, content).group('extract')
+						except:
+							content = default
 				dct[attr] = content
 			if dct_handler:
 				dct = dct_handler(response, dct)

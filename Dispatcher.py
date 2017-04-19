@@ -62,8 +62,6 @@ class Dispatcher(BaseObject):
 							if not self._proxies:
 								self._proxies = self.choose_proxies(request_or_item.url)
 								logging.info('try using proxies {}'.format(self._proxies))
-							if not self._proxies:
-								raise Exception('no proxy to use')
 							try:
 								response = self._network_service.send_request(request_or_item, proxies=self._proxies, timeout=10)
 								if response.status != 200:
@@ -77,6 +75,8 @@ class Dispatcher(BaseObject):
 								if self._proxies:
 									self.score_proxies(self._proxies, 0)
 									self._proxies = None
+								else:
+									raise Exception('no proxy to use anymore')
 						request_response_id = self._store_request_response(request_or_item, response)
 					response.set_request_response_id(request_response_id)
 					for handler in self._response_handler_list:

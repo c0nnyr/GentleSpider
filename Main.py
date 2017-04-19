@@ -31,7 +31,8 @@ def proxy():
 
 	dispatcher.add_request_handler(RandomWaitRequestHandler.RandomWaitRequestHandler())
 
-	dispatcher.run(ProxySpider.ProxySpider())
+	dispatcher.run(ProxySpider.ProxySpider2())
+	dispatcher.run(ProxySpider.ProxySpider1())
 
 if __name__ == '__main__':
 	parser = optparse.OptionParser()
