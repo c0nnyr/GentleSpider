@@ -5,7 +5,7 @@ from Items import DealItem
 class DealSpider(BaseLianjiaSpider):
 
 	BASE_URL = 'http://cd.lianjia.com/chengjiao/{district}/{page}p{price_level}/'
-	VALIDATE_XPATH = '/html/body/div[4]/div[1]'
+	VALIDATE_XPATH = '/html/body/div[4]/div[contains(@class,"leftContent")]'
 	DISTRICTS = [ 'jinjiang', 'qingyang', 'wuhou', 'gaoxing7', 'chenghua', 'jinniu', \
 	              'gaoxinxi1', 'pidou', 'tianfuxinqu', 'shuangliu', 'wenjiang', \
 	              'longquanyi', 'xindou',]
@@ -21,7 +21,7 @@ class DealSpider(BaseLianjiaSpider):
 	]
 
 	metas = [{'price_level':price_level, 'district':district} for price_level in PRICE_LEVELS for district in DISTRICTS]
-	start_urls = [BASE_URL.format(page='', district=meta['district'], price_level=meta['price_level']) for meta in metas]
+	start_urls = [BASE_URL.format(page='', **meta) for meta in metas]
 	for start_url, meta in zip(start_urls, metas):
 		meta['start_url'] = start_url
 		meta['page'] = 1

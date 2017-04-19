@@ -60,4 +60,14 @@ class DealItem(LianJiaItem, Model):
 class HouseItem(LianJiaItem, Model):
 	__tablename__ = 'house'
 
+	title = Column(Text())
+	house_info_resblock = Column(Text())
+	house_info = Column(Text())
+	position_info_district = Column(Text())
+	position_info = Column(Text())
+	follow_info = Column(Text())
+	total_price = Column(Text())
+	price_per_sm = Column(Text())
+	tag = Column(Text())
+
 Model.metadata.create_all(engine)#类型建立后,才能这样建立表

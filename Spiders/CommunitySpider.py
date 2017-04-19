@@ -5,7 +5,7 @@ from Items import CommunityItem
 class CommunitySpider(BaseLianjiaSpider):
 
 	BASE_URL = 'http://cd.lianjia.com/xiaoqu/{page}p{price_level}/'
-	VALIDATE_XPATH = '/html/body/div[4]/div[1]'
+	VALIDATE_XPATH = '/html/body/div[4]/div[contains(@class,"leftContent")]'
 
 	PRICE_LEVELS = [
 		4,#1~1.5
