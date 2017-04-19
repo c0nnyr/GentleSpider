@@ -21,9 +21,9 @@ class BaseLianjiaSpider(BaseSpider):
 			item_count += 1
 			yield item
 
-		cur_page = response.meta['page']
-		price_level = response.meta['price_level']
 		start_url = response.meta['start_url']
+
+		cur_page = response.meta.get('page', 1)
 		total_pages = response.meta.get('total_pages')
 
 		if total_pages is None:
@@ -31,11 +31,18 @@ class BaseLianjiaSpider(BaseSpider):
 			total_pages = min(int(math.ceil(float(total_count) / self.MAX_COUNT_PER_PAGE)), self.MAX_PAGE)#最多允许爬去100页
 
 		if item_count == self.MAX_COUNT_PER_PAGE and cur_page < total_pages:#说明不是最后一页了
-			next_page = cur_page + 1
-			url = self.BASE_URL.format(page='pg%d' % next_page, price_level=price_level)
-			yield Request(url, meta={'price_level':price_level, 'page':next_page, 'start_url':start_url})
+			url = self._get_next_page_url(response)
+			if url:
+				meta = dict(**response.meta)
+				meta['page'] = cur_page + 1
+				yield Request(url, meta=meta)
 		else:
 			logging.info('finish start_url {}'.format(start_url))
+
+	def _get_next_page_url(self, response):
+		dct = dict(**response.meta)
+		dct['page'] = 'pg%d' % (dct.get('page', 1) + 1)#用于构建url
+		return self.BASE_URL.format(**dct)
 
 	@staticmethod
 	def add_page(response, dct):

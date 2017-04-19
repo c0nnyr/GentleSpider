@@ -36,5 +36,6 @@ class CommunitySpider(BaseLianjiaSpider):
 			'bizcircle':self.pack('div[1]/div[3]/a[2]/text()',),
 			'year_built':self.pack('div[1]/div[3]/text()',  r'(?P<extract>\d+)', '0'),
 		}
-		for item in self._parse_multipage(response, CommunityItem, '/html/body/div[4]/div[1]/ul/li', attr_map, '/html/body/div[4]/div[1]/div[2]/h2/span'):
+		for item in self._parse_multipage(response, CommunityItem, '/html/body/div[4]/div[1]/ul/li', attr_map, '/html/body/div[4]/div[1]/div[2]/h2/span/text()'):
 			yield item
+

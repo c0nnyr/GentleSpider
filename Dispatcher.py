@@ -5,7 +5,6 @@ from BaseSpider import BaseSpider
 from Request import Request
 import GlobalMethod as M
 import itertools, logging
-from SqlDBHelper import session as db
 from SqlDBHelper import ProxyItem, RequestResponseMap
 
 class Dispatcher(BaseObject):
@@ -18,10 +17,14 @@ class Dispatcher(BaseObject):
 		self._response_handler_list = []
 		self._proxies = None
 		self._cur_proxy_request_count = 0
-		self._enable_score_proxy = True
+		self._score_proxy = True
+		self._use_proxy = True
 
 	def enable_score_proxy(self, b):
-		self._enable_score_proxy = b
+		self._score_proxy = b
+
+	def enable_use_proxy(self, b):
+		self._use_proxy = b
 
 	def run(self, *spiders):
 		for handler in itertools.chain(self._item_handler_list, self._response_handler_list, self._request_handler_list):
@@ -55,7 +58,7 @@ class Dispatcher(BaseObject):
 					request_response_id = -1
 					if request_or_item.use_cache:
 						try:
-							request_response_map = db.RequestResponseMap.get(request_or_item)
+							request_response_map = RequestResponseMap.get(request_or_item)
 							if request_response_map:
 								response = request_response_map.response
 								request_response_id = request_response_map.id
@@ -64,11 +67,12 @@ class Dispatcher(BaseObject):
 							response = None
 					if not response:
 						while True:
-							if not self._proxies or self._cur_proxy_request_count > self.REQUEST_COUNT_THRESHOLD:
-								self._proxies = self.choose_proxies(request_or_item.url)
-								logging.info('try using proxies {}'.format(self._proxies))
-								if self._proxies:
-									self._cur_proxy_request_count = 0
+							if self._use_proxy:
+								if not self._proxies or self._cur_proxy_request_count > self.REQUEST_COUNT_THRESHOLD:
+									self._proxies = self.choose_proxies(request_or_item.url)
+									logging.info('try using proxies {}'.format(self._proxies))
+									if self._proxies:
+										self._cur_proxy_request_count = 0
 							try:
 								response = self._network_service.send_request(request_or_item, proxies=self._proxies, timeout=10)
 								if response.status != 200:
@@ -81,7 +85,7 @@ class Dispatcher(BaseObject):
 							except Exception as ex:
 								logging.info('Exception {} happens when sending request with proxies {}'.format(ex, self._proxies))
 								if self._proxies:
-									if self._enable_score_proxy:
+									if self._score_proxy and self._cur_proxy_request_count == 0:
 										self.score_proxies(self._proxies, 0)
 									self._proxies = None
 								else:
@@ -124,10 +128,7 @@ class Dispatcher(BaseObject):
 		self._response_handler_list = []
 
 	def _store_request_response(self, request, response):
-		request_response_pair = RequestResponseMap(request, response)
-		db.merge(request_response_pair)
-		db.commit()
-		return request_response_pair.id
+		return RequestResponseMap.store(request, response)
 
 	def choose_proxies(self, url):
 		return ProxyItem.get_proxies(url)

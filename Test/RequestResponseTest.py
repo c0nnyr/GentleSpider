@@ -1,7 +1,7 @@
 # coding:utf-8
 from BaseSpider import BaseSpider
 from SqlDBHelper import RequestResponseMap
-from SqlDBHelper import session as db
+from SqlDBHelper import rr_session as db
 import re, math, json, datetime
 from Request import Request
 from Response import Response
