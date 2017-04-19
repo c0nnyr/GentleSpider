@@ -5,7 +5,10 @@ from Request import Request
 import logging
 
 class BaseLianjiaSpider(BaseSpider):
-	#VALIDATE_IMG_URL = 'http://captcha.lianjia.com/human'
+
+	MAX_COUNT_PER_PAGE = 30
+	MAX_PAGE = 100
+	VALIDATE_IMG_URL = 'http://captcha.lianjia.com/human'
 
 #	def _parse_pages(self, response, url_template, total_count_xpath, count_per_page, item_cls):
 #		meta = response.meta

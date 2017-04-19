@@ -1,6 +1,6 @@
 # coding:utf-8
 from BaseLianjiaSpider import BaseLianjiaSpider
-import re, logging
+import re, logging, math
 from Items import CommunityItem
 import GlobalMethod as M
 from Request import Request
@@ -9,14 +9,15 @@ class CommunitySpider(BaseLianjiaSpider):
 	name = 'community'
 
 	COMMUNITY_URL = 'http://cd.lianjia.com/xiaoqu/{page}p{price_level}/'
-	metas = [
-		{'price_level':4},#1~1.5
-		{'price_level':5},#1.5~2
-		{'price_level':3},#0.8~1
-		{'price_level':2},#0.5~0.8
-		{'price_level':1},#<0.5
-		{'price_level':6},#>2
+	PRICE_LEVELS = [
+		4,#1~1.5
+		5,#1.5~2
+		3,#0.8~1
+		2,#0.5~0.8
+		1,#<0.5
+		6,#>2
 	]
+	metas = [{'price_level':price_level} for price_level in PRICE_LEVELS]
 	start_urls = [COMMUNITY_URL.format(page='', price_level=meta['price_level']) for meta in metas]
 	for start_url, meta in zip(start_urls, metas):
 		meta['start_url'] = start_url
@@ -51,8 +52,16 @@ class CommunitySpider(BaseLianjiaSpider):
 		cur_page = response.meta['page']
 		price_level = response.meta['price_level']
 		start_url = response.meta['start_url']
-		if item_count == 30 and cur_page < 100:#说明不是最后一页了
-			url = self.COMMUNITY_URL.format(page='pg%d' % cur_page + 1, price_level=price_level)
-			yield Request(url, meta={'price_level':price_level, 'page':cur_page + 1, 'start_url':start_url})
+		total_pages = response.meta.get('total_pages')
+
+		if total_pages is None:
+			total_count_xpath = '/html/body/div[4]/div[1]/div[2]/h2/span'
+			total_count = int(response.xpath(total_count_xpath).extract_first())
+			total_pages = min(int(math.ceil(float(total_count) / self.MAX_COUNT_PER_PAGE)), self.MAX_PAGE)#最多允许爬去100页
+
+		if item_count == self.MAX_COUNT_PER_PAGE and cur_page < total_pages:#说明不是最后一页了
+			next_page = cur_page + 1
+			url = self.COMMUNITY_URL.format(page='pg%d' % next_page, price_level=price_level)
+			yield Request(url, meta={'price_level':price_level, 'page':next_page, 'start_url':start_url})
 		else:
 			logging.info('finish start_url {}'.format(start_url))
