@@ -7,7 +7,7 @@ import GlobalMethod as M
 class HouseSpider(BaseLianjiaSpider):
 	name = 'community'
 
-	DISTRICT_URL = 'http://cd.lianjia.com/ershoufang/%s/{page}co32/'
+	BASE_URL = 'http://cd.lianjia.com/ershoufang/%s/{page}co32/'
 	
 	def __init__(self):
 		super(HouseSpider, self).__init__()
@@ -28,26 +28,19 @@ class HouseSpider(BaseLianjiaSpider):
 		)
 
 	def parse(self, response):
-		#第0阶段就这这里，爬取start_urls的结果
-		xpath = '/html/body/div[4]/div[1]/ul/li'
 		attr_map = {
 			#attr xpath, re_filter
-			'url':self.pack('div[1]/div[1]/a/@href',),#这里不能再添加根了，不能/divxx or /li/div
-			'id':self.pack('div[1]/div[1]/a/@href', r'(?P<extract>\d+)'),
+			'url':self.pack('div[2]/div[2]/a/@href',),#这里不能再添加根了，不能/divxx or /li/div
+			'id':self.pack('div[2]/div[2]/a/@href', r'(?P<extract>\d+)'),
 			'title':self.pack('div[1]/div[1]/a/text()',),
-			'desc1':self.pack('div[1]/div[2]/div/text()',),
-			'desc2':self.pack('div[1]/div[3]/div/text()',),
-			'desc3':self.pack('div[1]/div[4]/div/text()',),
-
-			'total_price':self.pack('div[1]/div[6]/div[1]/span/text()',),
-			'price_per_sm':self.pack('div[1]/div[6]/div[2]/span/text()',),
+			'count_on_sale':self.pack('div[2]/div[2]/a/span/text()',),
+			'price_per_sm':self.pack('div[2]/div[1]/div[1]/span/text()',),
+			'count_on_rent':self.pack('div[1]/div[2]/a[2]/text()', r'(?P<extract>\d+)'),
+			'count_sold_90days':self.pack('div[1]/div[2]/a[1]/text()', r'90\S+(?P<extract>\d+)'),
+			'district':self.pack('div[1]/div[3]/a[1]/text()',),
+			'bizcircle':self.pack('div[1]/div[3]/a[2]/text()',),
+			'year_built':self.pack('div[1]/div[3]/text()',  r'(?P<extract>\d+)', '0'),
 		}
-
-		#正式开始解析
-		for item in self._parse_items(response, xpath, attr_map, HouseItem, self.add_page):
+		for item in self._parse_multipage(response, CommunityItem, '/html/body/div[4]/div[1]/ul/li', attr_map, '/html/body/div[4]/div[1]/div[2]/h2/span'):
 			yield item
 
-		district = re.search(r'/ershoufang/(\S*?)/', response.url).group(1)
-		for r in self._parse_pages(response, self.DISTRICT_URL % district, '/html/body/div[4]/div[1]/div[2]/h2/span/text()', 30, HouseItem):
-			#这里虽然提供了一个总小区个数,但是只提供了100页可以浏览....
-			yield r
