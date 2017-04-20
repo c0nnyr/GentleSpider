@@ -9,6 +9,7 @@ from SqlDBHelper import ProxyItem, RequestResponseMap
 
 class Dispatcher(BaseObject):
 	REQUEST_COUNT_THRESHOLD = 10
+	PROXY_TIMEOUT = 3
 
 	DEPTH_MODE = 0
 	WIDTH_MODE = 1
@@ -82,7 +83,7 @@ class Dispatcher(BaseObject):
 									if self._proxies:
 										self._cur_proxy_request_count = 0
 							try:
-								response = self._network_service.send_request(request_or_item, proxies=self._proxies, timeout=10)
+								response = self._network_service.send_request(request_or_item, proxies=self._proxies, timeout=self.PROXY_TIMEOUT)
 								if response.status != 200:
 									raise Exception('status is not 200, body {}'.format(response.body))
 								elif not spider.is_valid_response(response):
