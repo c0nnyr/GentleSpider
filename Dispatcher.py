@@ -9,6 +9,10 @@ from SqlDBHelper import ProxyItem, RequestResponseMap
 
 class Dispatcher(BaseObject):
 	REQUEST_COUNT_THRESHOLD = 10
+
+	DEPTH_MODE = 0
+	WIDTH_MODE = 1
+
 	def __init__(self):
 		super(Dispatcher, self).__init__()
 		self._network_service = None
@@ -19,12 +23,12 @@ class Dispatcher(BaseObject):
 		self._cur_proxy_request_count = 0
 		self._score_proxy = True
 		self._use_proxy = True
+		self._mode = self.DEPTH_MODE
 
-	def enable_score_proxy(self, b):
-		self._score_proxy = b
-
-	def enable_use_proxy(self, b):
-		self._use_proxy = b
+	def set_config(self, config):
+		self._mode = config.get('mode', self._mode)
+		self._use_proxy = config.get('use_proxy', self._use_proxy)
+		self._score_proxy = config.get('score_proxy', self._score_proxy)
 
 	def run(self, *spiders):
 		for handler in itertools.chain(self._item_handler_list, self._response_handler_list, self._request_handler_list):
@@ -37,7 +41,11 @@ class Dispatcher(BaseObject):
 			handler.close_spider()
 
 	def _run(self, request_or_items, spider):
-		for request_or_item in request_or_items:
+		request_or_items_list = list(request_or_items)
+		while True:
+			if not request_or_items_list:
+				break
+			request_or_item = request_or_items_list.pop(0)
 			if M.is_item(request_or_item):
 				logging.info('Find item {}'.format(request_or_item.__dict__))
 				for handler in self._item_handler_list:
@@ -105,7 +113,14 @@ class Dispatcher(BaseObject):
 							except Exception as ex:
 								logging.info('Exception happens when running callback of request {} {}'.format(ex, request_or_item))
 								new_request_or_items = []
-							self._run(M.arg_to_iter(new_request_or_items), spider)
+							new_request_or_items = list(M.arg_to_iter(new_request_or_items))
+							new_items = [item for item in new_request_or_items if M.is_item(item)]
+							new_requests = [request for request in new_request_or_items if not M.is_item(request)]
+							if self._mode == self.DEPTH_MODE:
+								request_or_items_list[0:0] = new_request_or_items
+							elif self._mode == self.WIDTH_MODE:
+								request_or_items_list.extend(new_requests)
+								request_or_items_list[0:0] = new_items
 
 	def set_network_service(self, network_service):
 		self._network_service = network_service

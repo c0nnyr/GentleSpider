@@ -21,8 +21,11 @@ def community():
 
 	dispatcher.add_request_handler(RandomWaitRequestHandler.RandomWaitRequestHandler())
 
-	dispatcher.enable_score_proxy(True)
-	dispatcher.enable_use_proxy(True)
+	dispatcher.set_config({
+		'mode':dispatcher.DEPTH_MODE,
+		'score_proxy':True,
+		'use_proxy':True,
+	})
 	dispatcher.run(CommunitySpider.CommunitySpider())
 
 def proxy():
@@ -33,8 +36,11 @@ def proxy():
 
 	dispatcher.add_request_handler(RandomWaitRequestHandler.RandomWaitRequestHandler())
 
-	dispatcher.enable_score_proxy(False)
-	dispatcher.enable_use_proxy(False)
+	dispatcher.set_config({
+		'mode':dispatcher.DEPTH_MODE,
+		'score_proxy':False,
+		'use_proxy':False,
+	})
 	dispatcher.run(ProxySpider.ProxySpider2())
 	dispatcher.run(ProxySpider.ProxySpider1())
 
@@ -48,8 +54,12 @@ def deal():
 
 	dispatcher.add_request_handler(RandomWaitRequestHandler.RandomWaitRequestHandler())
 
-	dispatcher.enable_score_proxy(True)
-	dispatcher.enable_use_proxy(True)
+	dispatcher.set_config({
+		'mode':dispatcher.WIDTH_MODE,
+		'score_proxy':True,
+		'use_proxy':True,
+	})
+
 	dispatcher.run(DealSpider.DealSpider())
 
 def house():
@@ -62,8 +72,11 @@ def house():
 
 	dispatcher.add_request_handler(RandomWaitRequestHandler.RandomWaitRequestHandler())
 
-	dispatcher.enable_score_proxy(True)
-	dispatcher.enable_use_proxy(True)
+	dispatcher.set_config({
+		'mode':dispatcher.DEPTH_MODE,
+		'score_proxy':True,
+		'use_proxy':True,
+	})
 	dispatcher.run(HouseSpider.HouseSpider())
 
 if __name__ == '__main__':
@@ -82,6 +95,9 @@ if __name__ == '__main__':
 	if options.house_spider:
 		logging.info('using house spider')
 		house()
+	if options.deal_spider:
+		logging.info('using deal spider')
+		deal()
 
 
 
