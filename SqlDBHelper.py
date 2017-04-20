@@ -50,7 +50,7 @@ class RequestResponseMap(rr_Model):
 
 rr_Model.metadata.create_all(rr_engine)#类型建立后,才能这样建立表
 
-p_engine = create_engine('sqlite:///request_response_map.sqlite')
+p_engine = create_engine('sqlite:///proxy.sqlite')
 p_session_marker = sessionmaker(bind=p_engine)
 p_session = p_session_marker()
 p_Model = declarative_base(name='p_Model')
