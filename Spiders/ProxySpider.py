@@ -31,7 +31,7 @@ class BaseProxySpider(BaseSpider):
 			return sys.maxint
 
 class ProxySpider1(BaseProxySpider):
-	MAX_PAGE = 50
+	MAX_PAGE = 5
 	start_urls = [ 'http://www.xicidaili.com/nn',] +\
 		['http://www.xicidaili.com/nn/{}'.format(ind) for ind in xrange(2, MAX_PAGE)] + \
 		['http://www.xicidaili.com/nt/'] + \
@@ -69,7 +69,7 @@ class ProxySpider1(BaseProxySpider):
 			yield item
 
 class ProxySpider2(BaseProxySpider):
-	MAX_PAGE = 100
+	MAX_PAGE = 10
 	start_urls = ['http://www.kuaidaili.com/free/outha/{}/'.format(ind) for ind in xrange(1, MAX_PAGE)]+\
 		['http://www.kuaidaili.com/free/outtr/{}/'.format(ind) for ind in xrange(1, MAX_PAGE)]+ \
 		['http://www.kuaidaili.com/free/inha/{}/'.format(ind) for ind in xrange(1, MAX_PAGE)]+ \

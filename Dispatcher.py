@@ -85,7 +85,8 @@ class Dispatcher(BaseObject):
 										self._cur_proxy_request_count = 0
 							try:
 								response = self._network_service.send_request(request_or_item, proxies=self._proxies, timeout=self.PROXY_TIMEOUT)
-								response = spider.try_validate(response)
+								if not self._use_proxy:
+									response = spider.try_validate(response)
 								if not response:
 									raise Exception('response is None after try validate')
 								elif response.status != 200:
