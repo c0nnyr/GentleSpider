@@ -96,7 +96,7 @@ class Dispatcher(BaseObject):
 									self._cur_proxy_request_count += 1
 									break
 							except Exception as ex:
-								logging.info('Exception {} happens when sending request with proxies {}'.format(ex, self._proxies))
+								logging.info('Exception {} happens when sending request with proxies {} with body {}'.format(ex, self._proxies, response.body if response else None))
 								if self._proxies:
 									if self._score_proxy and self._cur_proxy_request_count == 0:
 										self.score_proxies(self._proxies, 0)
