@@ -70,10 +70,10 @@ class ProxyItem(p_Model):
 	location = Column(Text())
 	anonymouse_type = Column(Text())
 	http_type = Column(Text())
-	speed = Column(Integer())
-	link_time = Column(Integer())
-	living_time = Column(Float())
-	validate_date = Column(DateTime())
+	speed = Column(Text())
+	link_time = Column(Text())
+	living_time = Column(Text())
+	validate_date = Column(Text())
 
 	my_score = Column(Integer(), default=100)
 

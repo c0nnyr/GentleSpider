@@ -95,15 +95,15 @@ class ProxySpider2(BaseProxySpider):
 		}
 
 		def post_handler(response, dct):
-			dct['link_time'] = self.transform_time_to_seconds(dct['link_time'])
-			dct['living_time'] = self.transform_time_to_seconds(dct['living_time'])
-			dct['speed'] = self.transform_time_to_seconds(dct['speed'])
-			for format in ('%y-%m-%d %H:%M', '%Y-%m-%d %H:%M:%S'):
-				try:
-					dct['validate_date'] = datetime.datetime.strptime(dct['validate_date'], format)
-					break
-				except:
-					pass
+			#dct['link_time'] = self.transform_time_to_seconds(dct['link_time'])
+			#dct['living_time'] = self.transform_time_to_seconds(dct['living_time'])
+			#dct['speed'] = self.transform_time_to_seconds(dct['speed'])
+			#for format in ('%y-%m-%d %H:%M', '%Y-%m-%d %H:%M:%S'):
+			#	try:
+			#		dct['validate_date'] = datetime.datetime.strptime(dct['validate_date'], format)
+			#		break
+			#	except:
+			#		pass
 			return dct
 
 		#正式开始解析
