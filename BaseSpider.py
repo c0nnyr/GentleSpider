@@ -1,6 +1,6 @@
 # coding:utf-8
 from Request import Request
-import re
+import re, json
 
 class BaseSpider(object):
 	USE_CACHE = False
@@ -10,6 +10,10 @@ class BaseSpider(object):
 	def __init__(self, start_urls=()):
 		if start_urls:
 			self.start_urls = start_urls
+		self.net = None
+
+	def set_network_service(self, net):
+		self.net = net
 
 	def get_start_requests(self):
 		if len(self.metas) == len(self.start_urls):
@@ -20,8 +24,8 @@ class BaseSpider(object):
 	def parse(self, response):
 		pass
 
-	def try_validate(self, response, callback):
-		return []
+	def try_validate(self, response):
+		return response
 
 	def is_valid_response(self, response):
 		return True
@@ -50,5 +54,6 @@ class BaseSpider(object):
 			if dct_handler:
 				dct = dct_handler(response, dct)
 			dct['start_url'] = response.meta.get('start_url', response.url)
-			dct['original_data'] = str(dct)
+			dct['original_data'] = json.dumps(dct)
+			dct['meta'] = json.dumps(response.meta)
 			yield item_cls(request_response_id=response.id, **dct)

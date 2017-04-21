@@ -18,10 +18,12 @@ class LianJiaItem(object):
 	date = Column(Text(), primary_key=True)
 	id = Column(Integer(), primary_key=True)
 	request_response_id = Column(Integer())
+	meta = Column(Text())
+	page = Column(Integer())
 
 	def __init__(self, **kwargs):
 		super(LianJiaItem, self).__init__()
-		assert all((k in kwargs) for k in ('start_url', 'url', 'original_data', 'id', 'request_response_id')), "must contain keys 'start_url', 'url', 'original_data', 'id'"
+		assert all((k in kwargs) for k in ('start_url', 'url', 'original_data', 'id', 'request_response_id', 'meta')), "must contain keys 'start_url', 'url', 'original_data', 'id', 'meta'"
 		self.date = self.get_today_str()
 		for k, v in kwargs.iteritems():
 			setattr(self, k, v)
@@ -29,6 +31,10 @@ class LianJiaItem(object):
 	@staticmethod
 	def get_today_str(delta=0):
 		return (datetime.date.today() + datetime.timedelta(delta)).strftime('%y-%m-%d')
+
+	@classmethod
+	def check_page_crawled(cls, page, page_count, start_url):
+		return session.query(cls).filter(and_(cls.start_url==start_url, cls.page==page, cls.date==cls.get_today_str())).count() == page_count
 
 class CommunityItem(LianJiaItem, Model):
 	__tablename__ = 'community'
@@ -41,7 +47,6 @@ class CommunityItem(LianJiaItem, Model):
 	district = Column(Text())
 	bizcircle = Column(Text())
 	year_built = Column(Integer())
-	page = Column(Integer())
 
 class DealItem(LianJiaItem, Model):
 	__tablename__ = 'deal'
@@ -55,7 +60,9 @@ class DealItem(LianJiaItem, Model):
 	deal_house_text = Column(Text())
 	deal_cycle_txt = Column(Text())
 
-	page = Column(Integer())
+	@classmethod
+	def check_page_crawled(cls, page, page_count, start_url):
+		return session.query(cls).filter(and_(cls.start_url==start_url, cls.page==page)).count() == page_count
 
 class HouseItem(LianJiaItem, Model):
 	__tablename__ = 'house'

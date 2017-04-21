@@ -55,9 +55,9 @@ def deal():
 	dispatcher.add_request_handler(RandomWaitRequestHandler.RandomWaitRequestHandler())
 
 	dispatcher.set_config({
-		'mode':dispatcher.WIDTH_MODE,
-		'score_proxy':True,
-		'use_proxy':True,
+		'mode':dispatcher.DEPTH_MODE,
+		'score_proxy':False,
+		'use_proxy':False,
 	})
 
 	dispatcher.run(DealSpider.DealSpider())

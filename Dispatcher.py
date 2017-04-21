@@ -36,6 +36,7 @@ class Dispatcher(BaseObject):
 			handler.open_spider()
 		for spider in spiders:
 			assert isinstance(spider, BaseSpider), 'spider must be instance of BaseSpider'
+			spider.set_network_service(self._network_service)
 			request_or_items = spider.get_start_requests()
 			self._run(M.arg_to_iter(request_or_items), spider)
 		for handler in itertools.chain(self._item_handler_list, self._response_handler_list, self._request_handler_list):
@@ -84,7 +85,10 @@ class Dispatcher(BaseObject):
 										self._cur_proxy_request_count = 0
 							try:
 								response = self._network_service.send_request(request_or_item, proxies=self._proxies, timeout=self.PROXY_TIMEOUT)
-								if response.status != 200:
+								response = spider.try_validate(response)
+								if not response:
+									raise Exception('response is None after try validate')
+								elif response.status != 200:
 									raise Exception('status is not 200, body {}'.format(response.body))
 								elif not spider.is_valid_response(response):
 									raise Exception('not valid response {}, escape this proxiey {}'.format(response.body, self._proxies))
@@ -98,7 +102,7 @@ class Dispatcher(BaseObject):
 										self.score_proxies(self._proxies, 0)
 									self._proxies = None
 								else:
-									raise Exception('no proxy to use anymore')
+									raise ex
 						request_response_id = self._store_request_response(request_or_item, response)
 					response.set_request_response_id(request_response_id)
 					for handler in self._response_handler_list:

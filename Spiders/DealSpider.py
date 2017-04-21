@@ -4,6 +4,8 @@ from Items import DealItem
 
 class DealSpider(BaseLianjiaSpider):
 
+	CHECK_HAS_CRAWLED_PAGE = True
+
 	BASE_URL = 'http://cd.lianjia.com/chengjiao/{district}/{page}p{price_level}/'
 	VALIDATE_XPATH = '/html/body/div[4]/div[contains(@class,"leftContent")]'
 	DISTRICTS = [ 'jinjiang', 'qingyang', 'wuhou', 'gaoxing7', 'chenghua', 'jinniu', \
