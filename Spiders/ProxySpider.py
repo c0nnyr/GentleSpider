@@ -58,10 +58,10 @@ class ProxySpider1(BaseProxySpider):
 		}
 
 		def post_handler(response, dct):
-			dct['link_time'] = self.transform_time_to_seconds(dct['link_time'])
-			dct['living_time'] = self.transform_time_to_seconds(dct['living_time'])
-			dct['speed'] = self.transform_time_to_seconds(dct['speed'])
-			dct['validate_date'] = datetime.datetime.strptime(dct['validate_date'], '%y-%m-%d %H:%M')
+			#dct['link_time'] = self.transform_time_to_seconds(dct['link_time'])
+			#dct['living_time'] = self.transform_time_to_seconds(dct['living_time'])
+			#dct['speed'] = self.transform_time_to_seconds(dct['speed'])
+			#dct['validate_date'] = datetime.datetime.strptime(dct['validate_date'], '%y-%m-%d %H:%M')
 			return dct
 
 		#正式开始解析
