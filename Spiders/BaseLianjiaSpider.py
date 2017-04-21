@@ -16,11 +16,13 @@ class BaseLianjiaSpider(BaseSpider):
 
 	VALIDATE_IMG_URL = 'http://captcha.lianjia.com/human'
 
-	TRY_VALIDATE_THRESHOLD = 100
+	TRY_VALIDATE_THRESHOLD = 200
+	VALIDATE_TIME_RESET_DURATION = 10 * 60#十分钟重置一下
 
 	def __init__(self):
 		super(BaseLianjiaSpider, self).__init__()
 		self._try_validate_count = 0
+		self._validate_time = 0
 
 	def is_valid_response(self, response):
 		return bool(response.xpath(self.VALIDATE_XPATH))#至少存在这个
@@ -78,6 +80,8 @@ class BaseLianjiaSpider(BaseSpider):
 		#似乎form不太好用xpath处理
 		csrf = re.search(r'name="_csrf" value="(?P<extract>\S*?)"', response.body).group('extract')
 		while True:
+			if time.time() - self._validate_time > self.VALIDATE_TIME_RESET_DURATION:
+				self._try_validate_count = 0
 			self._try_validate_count += 1
 			if self._try_validate_count > self.TRY_VALIDATE_THRESHOLD:
 				return None
