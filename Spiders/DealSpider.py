@@ -32,9 +32,8 @@ class DealSpider(BaseLianjiaSpider):
 		attr_map = {
 			#attr xpath, re_filter
 			'url':self.pack('div/div[1]/a/@href',),#这里不能再添加根了，不能/divxx or /li/div
-			'id':self.pack('div/div[1]/a/@href', r'(?P<extract>\d+)'),
+			'id':self.pack('div/div[1]/a/@href', r'chengjiao/(?P<extract>\S+)\.'),
 			'date':self.pack('div/div/div[contains(@class, "dealDate")]/text()',),
-
 			'title':self.pack('div/div[1]/a/text()',),
 			'house_info':self.pack('div/div/div[contains(@class, "houseInfo")]/text()',),
 			'total_price':self.pack('div/div/div[contains(@class, "totalPrice")]/span/text()',),

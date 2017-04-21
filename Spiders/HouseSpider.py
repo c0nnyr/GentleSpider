@@ -30,7 +30,7 @@ class HouseSpider(BaseLianjiaSpider):
 		attr_map = {
 			#attr xpath, re_filter
 			'url':self.pack('div[1]/div[contains(@class,"title")]/a/@href',),#这里不能再添加根了，不能/divxx or /li/div
-			'id':self.pack('div[1]/div[contains(@class,"title")]/a/@href', r'(?P<extract>\d+)'),
+			'id':self.pack('div[1]/div[contains(@class,"title")]/a/@href', r'ershoufang/(?P<extract>\S+)\.'),
 			'title':self.pack('div[1]/div[contains(@class,"title")]/a/text()',),
 			'house_info_resblock':self.pack('div[1]/div[contains(@class, "address")]/div[contains(@class, "houseInfo")]/a/text()', ),
 			'house_info':self.pack('div[1]/div[contains(@class, "address")]/div[contains(@class, "houseInfo")]/text()', ),

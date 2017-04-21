@@ -13,10 +13,10 @@ class LianJiaItem(object):
 	IS_ITEM = True
 
 	start_url = Column(Text())
-	url = Column(Text())
+	url = Column(Text(), primary_key=True)
 	original_data = Column(Text())
 	date = Column(Text(), primary_key=True)
-	id = Column(Integer(), primary_key=True)
+	id = Column(Integer())
 	request_response_id = Column(Integer())
 	meta = Column(Text())
 	page = Column(Integer())

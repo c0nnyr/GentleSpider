@@ -26,7 +26,7 @@ class CommunitySpider(BaseLianjiaSpider):
 		attr_map = {
 			#attr xpath, re_filter
 			'url':self.pack('div[2]/div[2]/a/@href',),#这里不能再添加根了，不能/divxx or /li/div
-			'id':self.pack('div[2]/div[2]/a/@href', r'(?P<extract>\d+)'),
+			'id':self.pack('div[2]/div[2]/a/@href', r'xiaoqu/(?P<extract>\S+)/'),
 			'title':self.pack('div[1]/div[1]/a/text()',),
 			'count_on_sale':self.pack('div[2]/div[2]/a/span/text()',),
 			'price_per_sm':self.pack('div[2]/div[1]/div[1]/span/text()',),
