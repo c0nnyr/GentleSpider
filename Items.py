@@ -66,8 +66,8 @@ class DealItem(LianJiaItem, Model):
 	deal_cycle_txt = Column(Text())
 
 	@classmethod
-	def check_page_crawled(cls, page, page_count, start_url):
-		return session.query(cls).filter(and_(cls.start_url==start_url, cls.page==page)).count() == page_count
+	def check_page_crawled(cls, page, start_url):
+		return session.query(cls).filter(and_(cls.start_url==start_url, cls.page==page)).count() > 0
 
 class HouseItem(LianJiaItem, Model):
 	__tablename__ = 'house'
