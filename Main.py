@@ -4,6 +4,7 @@ from Dispatcher import Dispatcher
 from Handlers import SqlItemHandler, StatisticItemHandler, LianjiaValidateWarnResponseHandler, RandomWaitRequestHandler
 from Spiders import CommunitySpider, ProxySpider, DealSpider, HouseSpider
 from Logger import Logger
+from Analyze import DealAnalyzer
 import optparse, logging
 
 Logger()
@@ -79,12 +80,17 @@ def house():
 	})
 	dispatcher.run(HouseSpider.HouseSpider())
 
+def analyze_deal():
+	analyzer = DealAnalyzer.DealAnalyzer()
+	analyzer.run()
+
 if __name__ == '__main__':
 	parser = optparse.OptionParser()
 	parser.add_option('-p', '--proxy_spider', action='store_true', dest='proxy_spider', help='enable spider of proxy')
 	parser.add_option('-c', '--community_spider', action='store_true', dest='community_spider', help='enable spider of all community')
 	parser.add_option('-d', '--deal_spider', action='store_true', dest='deal_spider', help='enable spider of deal')
 	parser.add_option('-H', '--house_spider', action='store_true', dest='house_spider', help='enable spider of house')
+	parser.add_option('-a', '--analyze_deal', action='store_true', dest='analyze_deal', help='enable analyze deal')
 	options, args = parser.parse_args()
 	if options.proxy_spider:
 		logging.info('using proxy spider')
@@ -98,7 +104,6 @@ if __name__ == '__main__':
 	if options.deal_spider:
 		logging.info('using deal spider')
 		deal()
-
-
-
-
+	if options.analyze_deal:
+		logging.info('using analyze deal')
+		analyze_deal()

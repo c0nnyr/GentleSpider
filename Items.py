@@ -33,8 +33,13 @@ class LianJiaItem(object):
 		return (datetime.date.today() + datetime.timedelta(delta)).strftime('%y-%m-%d')
 
 	@classmethod
-	def check_page_crawled(cls, page, page_count, start_url):
-		return session.query(cls).filter(and_(cls.start_url==start_url, cls.page==page, cls.date==cls.get_today_str())).count() == page_count
+	def check_page_crawled(cls, page, start_url):
+		#检查是否曾经爬过这个页面. 对于一个单向队列的网页,用这个可以
+		return session.query(cls).filter(and_(cls.start_url==start_url, cls.page==page, cls.date==cls.get_today_str())).count() > 0
+
+	@classmethod
+	def check_primary_existence(cls, item):
+		return session.query(cls).filter(and_(cls.url == item.url, cls.date == item.date)).first()
 
 class CommunityItem(LianJiaItem, Model):
 	__tablename__ = 'community'

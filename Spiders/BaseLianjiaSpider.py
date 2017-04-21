@@ -46,7 +46,7 @@ class BaseLianjiaSpider(BaseSpider):
 			next_page = cur_page + 1
 			while next_page <= total_pages:
 				url = self._get_next_page_url(response, next_page)
-				if self.CHECK_HAS_CRAWLED_PAGE and item_cls.check_page_crawled(next_page, self.MAX_COUNT_PER_PAGE, start_url):
+				if self.CHECK_HAS_CRAWLED_PAGE and item_cls.check_page_crawled(next_page, start_url):
 					logging.info('has crawed page {} ind, url {}'.format(next_page, url))
 					next_page += 1
 					continue
