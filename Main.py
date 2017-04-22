@@ -91,6 +91,7 @@ if __name__ == '__main__':
 	parser.add_option('-d', '--deal_spider', action='store_true', dest='deal_spider', help='enable spider of deal')
 	parser.add_option('-H', '--house_spider', action='store_true', dest='house_spider', help='enable spider of house')
 	parser.add_option('-a', '--analyze_deal', action='store_true', dest='analyze_deal', help='enable analyze deal')
+	parser.add_option('-m', '--music', action='store', dest='music', help='play music when end')
 	options, args = parser.parse_args()
 	if options.proxy_spider:
 		logging.info('using proxy spider')
@@ -107,3 +108,6 @@ if __name__ == '__main__':
 	if options.analyze_deal:
 		logging.info('using analyze deal')
 		analyze_deal()
+	if options.music:
+		import os
+		os.system('play ' + options.music)
