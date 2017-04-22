@@ -42,6 +42,7 @@ def proxy():
 		'score_proxy':False,
 		'use_proxy':False,
 	})
+	dispatcher.run(ProxySpider.ProxySpider3())
 	dispatcher.run(ProxySpider.ProxySpider2())
 	dispatcher.run(ProxySpider.ProxySpider1())
 

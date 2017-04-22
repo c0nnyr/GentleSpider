@@ -109,3 +109,50 @@ class ProxySpider2(BaseProxySpider):
 		#正式开始解析
 		for item in self._parse_items(response, xpath, attr_map, ProxyItem, post_handler):
 			yield item
+
+class ProxySpider3(BaseProxySpider):
+	MAX_PAGE = 10
+	start_urls = ['http://www.proxy360.cn/Region/Brazil',
+				  'http://www.proxy360.cn/Region/China',
+				  'http://www.proxy360.cn/Region/America',
+				  'http://www.proxy360.cn/Region/Taiwan',
+				  'http://www.proxy360.cn/Region/Japan',
+				  'http://www.proxy360.cn/Region/Thailand',
+				  'http://www.proxy360.cn/Region/Vietnam',
+				  'http://www.proxy360.cn/Region/bahrein',
+				  ]
+
+	def is_valid_response(self, response):
+		return bool(response.xpath('//*[@id="ctl00_ContentPlaceHolder1_upProjectList"]/div[1]'))
+
+	def parse(self, response):
+		xpath = '//div[contains(@class, "proxylistitem")]/div[1]'#这里需要有tbody,因为了thead
+		attr_map = {
+			#attr xpath, re_filter
+			'country':self.pack('span[4]/text()',),
+			'ip':self.pack('span[1]/text()',),
+			'port':self.pack('span[2]/text()',),
+			'location':self.pack('', default='undefined'),
+			'anonymouse_type':self.pack('span[3]/text()',),
+			'http_type':self.pack('', default='HTTP'),
+			'speed':self.pack('', default=None),
+			'link_time':self.pack('', default=None),
+			'living_time':self.pack('', default=None),
+			'validate_date':self.pack('span[5]/text()', ),
+		}
+
+		def post_handler(response, dct):
+			#dct['link_time'] = self.transform_time_to_seconds(dct['link_time'])
+			#dct['living_time'] = self.transform_time_to_seconds(dct['living_time'])
+			#dct['speed'] = self.transform_time_to_seconds(dct['speed'])
+			#for format in ('%y-%m-%d %H:%M', '%Y-%m-%d %H:%M:%S'):
+			#	try:
+			#		dct['validate_date'] = datetime.datetime.strptime(dct['validate_date'], format)
+			#		break
+			#	except:
+			#		pass
+			return dct
+
+		#正式开始解析
+		for item in self._parse_items(response, xpath, attr_map, ProxyItem, post_handler):
+			yield item
