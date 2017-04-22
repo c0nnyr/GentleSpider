@@ -7,7 +7,7 @@ class DealSpider(BaseLianjiaSpider):
 
 	CHECK_HAS_CRAWLED_PAGE = True
 
-	BASE_URL = 'http://cd.lianjia.com/chengjiao/{district}/{page}p{price_level}/'
+	BASE_URL = 'http://cd.lianjia.com/chengjiao/{district}/{page}a{area}p{price_level}/'
 	VALIDATE_XPATH = '/html/body/div[4]/div[contains(@class,"leftContent")]'
 	DISTRICTS = [ 'jinjiang', 'qingyang', 'wuhou', 'gaoxing7', 'chenghua', 'jinniu', \
 	              'gaoxinxi1', 'pidou', 'tianfuxinqu', 'shuangliu', 'wenjiang', \
@@ -22,8 +22,18 @@ class DealSpider(BaseLianjiaSpider):
 		7,#200-300
 		8,#>300
 	]
+	AREAS = [
+		1,#<50
+		2,#50~70
+		3,#70~90
+		4,#90~110
+		5,#110~130
+		6,#130~150
+		7,#150~200
+		8,#>200
+	]
 
-	metas = [{'price_level':price_level, 'district':district} for price_level in PRICE_LEVELS for district in DISTRICTS]
+	metas = [{'price_level':price_level, 'district':district, 'area':area} for price_level in PRICE_LEVELS for district in DISTRICTS for area in AREAS]
 	start_urls = M.fill_meta_extract_start_urls(BASE_URL, metas)
 
 	def parse(self, response):

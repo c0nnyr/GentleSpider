@@ -7,7 +7,34 @@ import pprint, re
 class DealAnalyzer(BaseAnalyzer):
 
 	def run(self, **config):
-		self._deal_cycle()
+		total_count = db.query(DealItem).count()
+		for ind, item in enumerate(db.query(DealItem).all()):
+			db.merge(item)
+			db.commit()
+			print ind, '/', total_count
+		#self._deal_cycle()
+		#self._deal_page()
+
+	def _deal_page(self):
+		query = db.query(DealItem).filter(DealItem.id == 106100214277)
+		item = query.first()
+		print query
+		print item.__dict__
+		print item.id, item.start_url, item.url, item.page, item.request_response_id, item.title
+		#total_count = 0
+		#for page in xrange(101):
+		#	count = db.query(DealItem).filter(DealItem.page==page).count()
+		#	response_ids = sorted([item.request_response_id for item in db.query(DealItem).filter(DealItem.page==page).all()])
+		#	if len(response_ids) != count:
+		#		print 'not equal', page
+		#	print response_ids
+		#	total_count += count
+		#	print page, count
+		#print total_count
+		#print db.query(DealItem).count()
+		#items = db.query(DealItem).filter(DealItem.page==100).all()
+		#for ind, item in enumerate(items):
+		#	print ind, item.start_url
 
 	def _deal_cycle(self):
 		total_price = 0
