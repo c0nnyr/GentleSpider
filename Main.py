@@ -24,7 +24,6 @@ def community():
 
 	dispatcher.set_config({
 		'mode':dispatcher.DEPTH_MODE,
-		'score_proxy':True,
 		'use_proxy':True,
 	})
 	dispatcher.run(CommunitySpider.CommunitySpider())
@@ -39,7 +38,6 @@ def proxy(spider_ids):
 
 	dispatcher.set_config({
 		'mode':dispatcher.DEPTH_MODE,
-		'score_proxy':False,
 		'use_proxy':False,
 	})
 	ids = [int(_id) for _id in spider_ids.split(',')]
@@ -59,7 +57,6 @@ def deal():
 
 	dispatcher.set_config({
 		'mode':dispatcher.DEPTH_MODE,
-		'score_proxy':False,
 		'use_proxy':False,
 	})
 
@@ -77,7 +74,6 @@ def house():
 
 	dispatcher.set_config({
 		'mode':dispatcher.DEPTH_MODE,
-		'score_proxy':True,
 		'use_proxy':True,
 	})
 	dispatcher.run(HouseSpider.HouseSpider())
