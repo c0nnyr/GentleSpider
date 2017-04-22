@@ -1,5 +1,6 @@
 # coding:utf-8
 from BaseLianjiaSpider import BaseLianjiaSpider
+import GlobalMethod as M
 from Items import DealItem
 
 class DealSpider(BaseLianjiaSpider):
@@ -23,10 +24,7 @@ class DealSpider(BaseLianjiaSpider):
 	]
 
 	metas = [{'price_level':price_level, 'district':district} for price_level in PRICE_LEVELS for district in DISTRICTS]
-	start_urls = [BASE_URL.format(page='', **meta) for meta in metas]
-	for start_url, meta in zip(start_urls, metas):
-		meta['start_url'] = start_url
-		meta['page'] = 1
+	start_urls = M.fill_meta_extract_start_urls(BASE_URL, metas)
 
 	def parse(self, response):
 		attr_map = {

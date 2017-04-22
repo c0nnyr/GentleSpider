@@ -15,7 +15,7 @@ class LianJiaItem(object):
 	start_url = Column(Text())
 	url = Column(Text(), primary_key=True)
 	original_data = Column(Text())
-	date = Column(Text(), primary_key=True)
+	date = Column(Text())
 	id = Column(Integer())
 	request_response_id = Column(Integer())
 	meta = Column(Text(), primary_key=True)

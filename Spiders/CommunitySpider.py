@@ -1,6 +1,7 @@
 # coding:utf-8
 from BaseLianjiaSpider import BaseLianjiaSpider
 from Items import CommunityItem
+import GlobalMethod as M
 
 class CommunitySpider(BaseLianjiaSpider):
 
@@ -17,10 +18,7 @@ class CommunitySpider(BaseLianjiaSpider):
 	]
 
 	metas = [{'price_level':price_level} for price_level in PRICE_LEVELS]
-	start_urls = [BASE_URL.format(page='', price_level=meta['price_level']) for meta in metas]
-	for start_url, meta in zip(start_urls, metas):
-		meta['start_url'] = start_url
-		meta['page'] = 1
+	start_urls = M.fill_meta_extract_start_urls(BASE_URL, metas)
 
 	def parse(self, response):
 		attr_map = {

@@ -23,3 +23,10 @@ def check_validate_auto_redirect(func):
 			for r in arg_to_iter(func(self, response)):
 				yield r
 	return _func
+
+def fill_meta_extract_start_urls(base_url, base_metas):
+	start_urls = [base_url.format(page='', **meta) for meta in base_metas]
+	for start_url, meta in zip(start_urls, base_metas):
+		meta['start_url'] = start_url
+		meta['page'] = 1
+	return start_urls
