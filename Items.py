@@ -18,7 +18,7 @@ class LianJiaItem(object):
 	date = Column(Text(), primary_key=True)
 	id = Column(Integer())
 	request_response_id = Column(Integer())
-	meta = Column(Text())
+	meta = Column(Text(), primary_key=True)
 	page = Column(Integer())
 
 	def __init__(self, **kwargs):
