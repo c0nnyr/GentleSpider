@@ -3,7 +3,7 @@ from BaseSpider import BaseSpider
 import re, datetime
 from SqlDBHelper import ProxyItem
 import GlobalMethod as M
-import sys
+import sys, json
 
 class BaseProxySpider(BaseSpider):
 	digits_pattern = re.compile('^[0-9.]*')
@@ -156,3 +156,35 @@ class ProxySpider3(BaseProxySpider):
 		#正式开始解析
 		for item in self._parse_items(response, xpath, attr_map, ProxyItem, post_handler):
 			yield item
+
+class ProxySpider4(BaseProxySpider):
+	MAX_PAGE = 10
+	start_urls = ['http://www.xdaili.cn/ipagent//freeip/getFreeIps?page=1&rows=10',
+				  ]
+
+	def is_valid_response(self, response):
+		return True
+
+	def parse(self, response):
+		json_txt = eval(response.body).decode('utf-8')
+		for row in json.loads(json_txt)['rows']:
+			attr_map = {
+				#attr xpath, re_filter
+				'country':'undefined',
+				'ip':row['ip'],
+				'port':row['port'],
+				'location':row['position'],
+				'anonymouse_type':row['anony'],
+				'http_type':'HTTP',
+				'speed':row['responsetime'],
+				'link_time':None,
+				'living_time':None,
+				'validate_date':row['createTime'],
+
+				'start_url':response.meta.get('start_url', response.url),
+				'original_data':json_txt,#必须是unicode的,里面有中文,否则数据库不知道怎么办
+				'meta':json.dumps(response.meta),
+			}
+			yield ProxyItem(**attr_map)
+
+
