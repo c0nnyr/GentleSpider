@@ -75,7 +75,7 @@ class ProxyItem(p_Model):
 	living_time = Column(Text())
 	validate_date = Column(Text())
 
-	DEFAULT_SCORE = 2
+	DEFAULT_SCORE = 20
 	my_score = Column(Integer(), default=DEFAULT_SCORE)
 
 
