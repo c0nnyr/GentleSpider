@@ -16,13 +16,7 @@ class BaseLianjiaSpider(BaseSpider):
 
 	VALIDATE_IMG_URL = 'http://captcha.lianjia.com/human'
 
-	TRY_VALIDATE_THRESHOLD = 200
-	VALIDATE_TIME_RESET_DURATION = 10 * 60#十分钟重置一下
-
-	def __init__(self):
-		super(BaseLianjiaSpider, self).__init__()
-		self._try_validate_count = 0
-		self._validate_time = 0
+	TRY_VALIDATE_THRESHOLD = 20
 
 	def is_valid_response(self, response):
 		return bool(response.xpath(self.VALIDATE_XPATH))#至少存在这个
@@ -69,30 +63,35 @@ class BaseLianjiaSpider(BaseSpider):
 		dct['page'] = response.meta.get('page', 1)
 		return dct
 
-	def try_validate(self, response):
+	def try_validate(self, response, proxy, timeout):
 		if self.is_valid_response(response):
 			return response
-		original_url = urllib.unquote(re.search(r'redirect=(?P<extract>.*)', response.url).group('extract'))
-		original_meta = response.meta
-		logging.info('validating...')
-		#csrf_xpath = '/html/body/div/div[2]/div[1]/ul/form/input[3]/@value'#does not work, cannot find form
-		#csrf = response.xpath(csrf_xpath).extract_first()
-		#似乎form不太好用xpath处理
-		csrf = re.search(r'name="_csrf" value="(?P<extract>\S*?)"', response.body).group('extract')
-		while True:
-			if time.time() - self._validate_time > self.VALIDATE_TIME_RESET_DURATION:
-				self._try_validate_count = 0
-			self._try_validate_count += 1
-			if self._try_validate_count > self.TRY_VALIDATE_THRESHOLD:
-				return None
+		original_response = response
+		try_validate_count = 0
+		try:
+			original_url = urllib.unquote(re.search(r'redirect=(?P<extract>.*)', response.url).group('extract'))
+			original_meta = response.meta
+			logging.info('validating...')
+			#csrf_xpath = '/html/body/div/div[2]/div[1]/ul/form/input[3]/@value'#does not work, cannot find form
+			#csrf = response.xpath(csrf_xpath).extract_first()
+			#似乎form不太好用xpath处理
+			csrf = re.search(r'name="_csrf" value="(?P<extract>\S*?)"', response.body).group('extract')
+			while True:
+				try_validate_count += 1
+				if try_validate_count > self.TRY_VALIDATE_THRESHOLD:
+					return original_response
 
-			response = self.net.send_request(Request(self.VALIDATE_IMG_URL))
-			dct = json.loads(response.body)
-			formdata = {'_csrf':csrf, 'uuid':dct['uuid'], 'bitvalue':'2'}
-			time.sleep(1)
-			response = self.net.send_request(Request(self.VALIDATE_IMG_URL, method='post', data=formdata))
-
-			if '"error":true' not in response.body:
-				logging.info('finish validating')
+				response = self.net.send_request(Request(self.VALIDATE_IMG_URL), proxies=proxy, timeout=timeout)
+				dct = json.loads(response.body)
+				formdata = {'_csrf':csrf, 'uuid':dct['uuid'], 'bitvalue':'2'}
 				time.sleep(1)
-				return self.net.send_request(Request(original_url, meta=original_meta))
+				response = self.net.send_request(Request(self.VALIDATE_IMG_URL, method='post', data=formdata), \
+												 proxies=proxy, timeout=timeout)
+
+				if '"error":true' not in response.body:
+					logging.info('finish validating')
+					time.sleep(1)
+					return self.net.send_request(Request(original_url, meta=original_meta), proxies=proxy, timeout=timeout)
+		except Exception as ex:
+			logging.info('try validate exception {} with response body {}'.format(ex, response.body))
+			return original_response

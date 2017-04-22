@@ -90,8 +90,7 @@ class Dispatcher(BaseObject):
 									proxy = self._proxy_mgr.pick_proxy(request_or_item.url)#再不行就没救了
 							try:
 								response = self._network_service.send_request(request_or_item, proxies=proxy, timeout=self.REQUEST_TIMEOUT)
-								if not self._use_proxy:
-									response = spider.try_validate(response)#直接穿行解决validate的问题
+								response = spider.try_validate(response, proxy=proxy, timeout=self.REQUEST_TIMEOUT)#直接视图串行解决validate的问题
 								if not response:
 									raise Exception('response is None after try validate')
 								elif response.status != 200:

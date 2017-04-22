@@ -24,7 +24,7 @@ class BaseSpider(object):
 	def parse(self, response):
 		pass
 
-	def try_validate(self, response):
+	def try_validate(self, response, proxy, timeout):
 		return response
 
 	def is_valid_response(self, response):
