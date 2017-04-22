@@ -58,6 +58,7 @@ class Dispatcher(BaseObject):
 					except Exception as ex:
 						logging.info('Exception {} happens when using {}'.format(ex, handler))
 			elif isinstance(request_or_item, Request):
+				logging.info('Prepare to request {} {}'.format(request_or_item.url, request_or_item.__dict__))
 				for handler in self._request_handler_list:
 					try:
 						handler.handle(request_or_item)
