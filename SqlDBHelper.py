@@ -75,7 +75,9 @@ class ProxyItem(p_Model):
 	living_time = Column(Text())
 	validate_date = Column(Text())
 
-	my_score = Column(Integer(), default=100)
+	DEFAULT_SCORE = 2
+	my_score = Column(Integer(), default=DEFAULT_SCORE)
+
 
 	def __init__(self, **kwargs):
 		super(ProxyItem, self).__init__()
@@ -83,28 +85,22 @@ class ProxyItem(p_Model):
 			setattr(self, k, v)
 
 	@classmethod
-	def get_proxies(cls, url):
-		if url.startswith('https'):
-			http_type = 'HTTPS'
-		elif url.startswith('http'):
-			http_type = 'HTTP'
-		else:
-			return None
+	def get_proper_proxy(cls, http_type):
 		try:
-			usable_proxy_filter = and_(cls.http_type == http_type, cls.my_score != 0)
+			usable_proxy_filter = and_(cls.http_type == http_type, cls.my_score > 0)
 			usable_proxy_count = p_session.query(cls).filter(usable_proxy_filter).count()
 			if usable_proxy_count == 0:
-				return None
+				return None, None
 			offset = random.randint(0, usable_proxy_count - 1)
 			proxy_item = p_session.query(cls).filter(usable_proxy_filter).offset(offset).first()
-			return {http_type.lower() : '{}:{}'.format(proxy_item.ip, proxy_item.port)}
+			return {http_type.lower() : '{}:{}'.format(proxy_item.ip, proxy_item.port)}, proxy_item.my_score
 		except Exception as ex:
 			logging.info('Exception {} when using get_proxies'.format(ex))
-			return None
+			return None, None
 
 	@classmethod
-	def score_proxies(cls, proxies, score):
-		for ip_port in proxies.itervalues():
+	def set_proxy_score(cls, proxy, score):
+		for ip_port in proxy.itervalues():
 			ip, port = ip_port.split(':')
 			port = int(port)
 
@@ -113,5 +109,9 @@ class ProxyItem(p_Model):
 
 			p_session.merge(item)
 			p_session.commit()
+
+	@classmethod
+	def clear_all(cls):
+		p_session.query(cls).delete()
 
 p_Model.metadata.create_all(p_engine)#类型建立后,才能这样建立表

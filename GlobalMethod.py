@@ -30,3 +30,21 @@ def fill_meta_extract_start_urls(base_url, base_metas):
 		meta['start_url'] = start_url
 		meta['page'] = 1
 	return start_urls
+
+def draw_hist(x, x_lable='', y_lable='', title='', bin_count=50):
+	import numpy as np
+	import matplotlib.mlab as mlab
+	import matplotlib.pyplot as plt
+	fig, ax = plt.subplots()
+	n, bins, patches = ax.hist(x, bin_count, normed=1)
+
+	#ax.plot(bins, y, '--')
+	ax.set_xlabel(x_lable)
+	ax.set_ylabel(y_lable)
+	ax.set_title(title)
+
+	# Tweak spacing to prevent clipping of ylabel
+	fig.tight_layout()
+	plt.show()
+
+

@@ -5,7 +5,7 @@ from Items import HouseItem
 import GlobalMethod as M
 
 class HouseSpider(BaseLianjiaSpider):
-	BASE_URL = 'http://cd.lianjia.com/ershoufang/{district}/{page}co32p{price_level}/'#最新发布排序
+	BASE_URL = 'http://cd.lianjia.com/ershoufang/{district}/{page}co32l{house_type}a{area}p{price_level}/'#最新发布排序
 	VALIDATE_XPATH = '/html/body/div[4]/div[contains(@class,"leftContent")]'
 	DISTRICTS = [ 'jinjiang', 'qingyang', 'wuhou', 'gaoxing7', 'chenghua', 'jinniu', \
 				  'gaoxinxi1', 'pidou', 'tianfuxinqu', 'shuangliu', 'wenjiang', \
@@ -20,7 +20,25 @@ class HouseSpider(BaseLianjiaSpider):
 		7,#200-300
 		8,#>300
 	]
-	metas = [{'price_level':price_level, 'district':district} for price_level in PRICE_LEVELS for district in DISTRICTS]
+	AREAS = [
+		1,#<50
+		2,#50~70
+		3,#70~90
+		4,#90~110
+		5,#110~130
+		6,#130~150
+		7,#150~200
+		8,#>200
+	]
+	HOUSE_TYPES = [
+		1,
+		2,
+		3,
+		4,
+		5,#四室以上
+	]
+	metas = [{'price_level':price_level, 'district':district, 'area':area, 'house_type':house_type}
+			 for price_level in PRICE_LEVELS for district in DISTRICTS for area in AREAS for house_type in HOUSE_TYPES]
 	start_urls = M.fill_meta_extract_start_urls(BASE_URL, metas)
 
 	def parse(self, response):

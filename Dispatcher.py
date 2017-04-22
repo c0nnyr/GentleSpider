@@ -4,12 +4,13 @@ from BaseHandler import BaseItemHandler, BaseRequestHandler, BaseResponseHandler
 from BaseSpider import BaseSpider
 from Request import Request
 import GlobalMethod as M
-import itertools, logging
+import itertools, logging, time
 from SqlDBHelper import ProxyItem, RequestResponseMap
+from ProxyManager import ProxyManager
 
 class Dispatcher(BaseObject):
 	REQUEST_COUNT_THRESHOLD = 10
-	PROXY_TIMEOUT = 3
+	REQUEST_TIMEOUT = 3
 
 	DEPTH_MODE = 0
 	WIDTH_MODE = 1
@@ -20,16 +21,17 @@ class Dispatcher(BaseObject):
 		self._item_handler_list = []
 		self._request_handler_list = []
 		self._response_handler_list = []
-		self._proxies = None
-		self._cur_proxy_request_count = 0
-		self._score_proxy = True
-		self._use_proxy = True
+		self._use_proxy = False
 		self._mode = self.DEPTH_MODE
+		self._proxy_mgr = None
 
 	def set_config(self, config):
 		self._mode = config.get('mode', self._mode)
 		self._use_proxy = config.get('use_proxy', self._use_proxy)
-		self._score_proxy = config.get('score_proxy', self._score_proxy)
+		if self._use_proxy and not self._proxy_mgr:
+			self._proxy_mgr = ProxyManager()
+		elif not self._use_proxy and self._proxy_mgr:
+			self._proxy_mgr = None
 
 	def run(self, *spiders):
 		for handler in itertools.chain(self._item_handler_list, self._response_handler_list, self._request_handler_list):
@@ -76,32 +78,33 @@ class Dispatcher(BaseObject):
 							logging.info('Exception {} happens when try find request map'.format(ex))
 							response = None
 					if not response:
-						while True:
+						while True:#想方设法得到一个response
+							proxy = None
 							if self._use_proxy:
-								if not self._proxies or self._cur_proxy_request_count > self.REQUEST_COUNT_THRESHOLD:
-									self._proxies = self.choose_proxies(request_or_item.url)
-									logging.info('try using proxies {}'.format(self._proxies))
-									if self._proxies:
-										self._cur_proxy_request_count = 0
+								proxy = self._proxy_mgr.pick_proxy(request_or_item.url)
+								if not proxy:
+									proxy_dispatcher = Dispatcher()
+									proxy_dispatcher.set_network_service(self._network_service)
+									self._proxy_mgr.crawl_new_proxies(proxy_dispatcher)
+									proxy = self._proxy_mgr.pick_proxy(request_or_item.url)#再不行就没救了
 							try:
-								response = self._network_service.send_request(request_or_item, proxies=self._proxies, timeout=self.PROXY_TIMEOUT)
+								response = self._network_service.send_request(request_or_item, proxies=proxy, timeout=self.REQUEST_TIMEOUT)
 								if not self._use_proxy:
-									response = spider.try_validate(response)
+									response = spider.try_validate(response)#直接穿行解决validate的问题
 								if not response:
 									raise Exception('response is None after try validate')
 								elif response.status != 200:
 									raise Exception('status is not 200, body {}'.format(response.body))
 								elif not spider.is_valid_response(response):
-									raise Exception('not valid response {}, escape this proxiey {}'.format(response.body, self._proxies))
+									raise Exception('not valid response {}, escape this proxiey {}'.format(response.body, proxy))
 								else:
-									self._cur_proxy_request_count += 1
+									if self._use_proxy:
+										self._proxy_mgr.feed_yes_or_no(True)
 									break
 							except Exception as ex:
-								logging.info('Exception {} happens when sending request with proxies {} with body {}'.format(ex, self._proxies, response.body if response else None))
-								if self._proxies:
-									if self._score_proxy and self._cur_proxy_request_count == 0:
-										self.score_proxies(self._proxies, 0)
-									self._proxies = None
+								logging.info('Exception {} happens when sending request with proxies {} with body {}'.format(ex, proxy, response.body if response else None))
+								if proxy:
+									self._proxy_mgr.feed_yes_or_no(False)
 								else:
 									raise ex
 						request_response_id = self._store_request_response(request_or_item, response)
@@ -150,10 +153,5 @@ class Dispatcher(BaseObject):
 
 	def _store_request_response(self, request, response):
 		return RequestResponseMap.store(request, response)
-
-	def choose_proxies(self, url):
-		return ProxyItem.get_proxies(url)
-	def score_proxies(self, proxies, score):
-		return ProxyItem.score_proxies(proxies, score)
 
 

@@ -44,7 +44,7 @@ class BaseSpider(object):
 				if not xpath:
 					content = default
 				else:
-					content = ''.join(sel.xpath(xpath).extract())#对于year_built，有多项
+					content = ''.join(sel.xpath(xpath).extract()).strip()#对于year_built，有多项
 					if re_filter:
 						try:
 							content = re.search(re_filter, content).group('extract')

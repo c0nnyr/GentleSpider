@@ -3,7 +3,7 @@ from BaseSpider import BaseSpider
 import re, datetime
 from SqlDBHelper import ProxyItem
 import GlobalMethod as M
-import sys
+import sys, json
 
 class BaseProxySpider(BaseSpider):
 	digits_pattern = re.compile('^[0-9.]*')
@@ -31,7 +31,7 @@ class BaseProxySpider(BaseSpider):
 			return sys.maxint
 
 class ProxySpider1(BaseProxySpider):
-	MAX_PAGE = 5
+	MAX_PAGE = 2
 	start_urls = [ 'http://www.xicidaili.com/nn',] +\
 		['http://www.xicidaili.com/nn/{}'.format(ind) for ind in xrange(2, MAX_PAGE)] + \
 		['http://www.xicidaili.com/nt/'] + \
@@ -69,7 +69,7 @@ class ProxySpider1(BaseProxySpider):
 			yield item
 
 class ProxySpider2(BaseProxySpider):
-	MAX_PAGE = 10
+	MAX_PAGE = 5
 	start_urls = ['http://www.kuaidaili.com/free/outha/{}/'.format(ind) for ind in xrange(1, MAX_PAGE)]+\
 		['http://www.kuaidaili.com/free/outtr/{}/'.format(ind) for ind in xrange(1, MAX_PAGE)]+ \
 		['http://www.kuaidaili.com/free/inha/{}/'.format(ind) for ind in xrange(1, MAX_PAGE)]+ \
@@ -109,3 +109,84 @@ class ProxySpider2(BaseProxySpider):
 		#正式开始解析
 		for item in self._parse_items(response, xpath, attr_map, ProxyItem, post_handler):
 			yield item
+
+class ProxySpider3(BaseProxySpider):
+	MAX_PAGE = 5
+	start_urls = ['http://www.proxy360.cn/Region/Brazil',
+				  'http://www.proxy360.cn/Region/China',
+				  'http://www.proxy360.cn/Region/America',
+				  'http://www.proxy360.cn/Region/Taiwan',
+				  'http://www.proxy360.cn/Region/Japan',
+				  'http://www.proxy360.cn/Region/Thailand',
+				  'http://www.proxy360.cn/Region/Vietnam',
+				  'http://www.proxy360.cn/Region/bahrein',
+				  ]
+
+	def is_valid_response(self, response):
+		return bool(response.xpath('//*[@id="ctl00_ContentPlaceHolder1_upProjectList"]/div[1]'))
+
+	def parse(self, response):
+		xpath = '//div[contains(@class, "proxylistitem")]/div[1]'#这里需要有tbody,因为了thead
+		attr_map = {
+			#attr xpath, re_filter
+			'country':self.pack('span[4]/text()',),
+			'ip':self.pack('span[1]/text()',),
+			'port':self.pack('span[2]/text()',),
+			'location':self.pack('', default='undefined'),
+			'anonymouse_type':self.pack('span[3]/text()',),
+			'http_type':self.pack('', default='HTTP'),
+			'speed':self.pack('', default=None),
+			'link_time':self.pack('', default=None),
+			'living_time':self.pack('', default=None),
+			'validate_date':self.pack('span[5]/text()', ),
+		}
+
+		def post_handler(response, dct):
+			#dct['link_time'] = self.transform_time_to_seconds(dct['link_time'])
+			#dct['living_time'] = self.transform_time_to_seconds(dct['living_time'])
+			#dct['speed'] = self.transform_time_to_seconds(dct['speed'])
+			#for format in ('%y-%m-%d %H:%M', '%Y-%m-%d %H:%M:%S'):
+			#	try:
+			#		dct['validate_date'] = datetime.datetime.strptime(dct['validate_date'], format)
+			#		break
+			#	except:
+			#		pass
+			return dct
+
+		#正式开始解析
+		for item in self._parse_items(response, xpath, attr_map, ProxyItem, post_handler):
+			yield item
+
+class ProxySpider4(BaseProxySpider):
+	MAX_PAGE = 10
+	start_urls = ['http://www.xdaili.cn/ipagent//freeip/getFreeIps?page=1&rows=10',
+				  ]
+
+	def is_valid_response(self, response):
+		return True
+
+	def parse(self, response):
+		json_txt = eval(response.body).decode('utf-8')
+		for row in json.loads(json_txt)['rows']:
+			attr_map = {
+				#attr xpath, re_filter
+				'country':'undefined',
+				'ip':row['ip'],
+				'port':row['port'],
+				'location':row['position'],
+				'anonymouse_type':row['anony'],
+				'http_type':'HTTP',
+				'speed':row['responsetime'],
+				'link_time':None,
+				'living_time':None,
+				'validate_date':row['createTime'],
+
+				'start_url':response.meta.get('start_url', response.url),
+				'original_data':json_txt,#必须是unicode的,里面有中文,否则数据库不知道怎么办
+				'meta':json.dumps(response.meta),
+			}
+			yield ProxyItem(**attr_map)
+
+
+cls_list = [ProxySpider1, ProxySpider2, ProxySpider3, ProxySpider4]
+#cls_list = [ProxySpider4]
