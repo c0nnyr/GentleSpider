@@ -44,7 +44,7 @@ def draw_hist(x, x_lable='', y_lable='', title='', bin_count=50):
 	ax.set_title(title)
 
 	# Tweak spacing to prevent clipping of ylabel
-	fig.tight_layout()
+	#fig.tight_layout()
 	plt.show()
 
 

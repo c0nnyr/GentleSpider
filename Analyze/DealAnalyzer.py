@@ -9,9 +9,10 @@ from Spiders.DealSpider import DealSpider
 class DealAnalyzer(BaseAnalyzer):
 
 	def run(self, **config):
-		self._handle_deal_cycle()
+		#self._handle_deal_cycle()
 		#self._print_start_levels()
 		#self._handle_price()
+		self._handle_year()
 		pass
 
 	def _print_start_levels(self):
@@ -48,6 +49,19 @@ class DealAnalyzer(BaseAnalyzer):
 		M.draw_hist(price_per_sm_lst, title=u'成交单价')
 		total_price_lst = [float(result[1]) for result in results]
 		M.draw_hist(total_price_lst, title=u'成交总价')
+
+	def _handle_year(self):
+		results = db.query(DealItem.url, DealItem.position_info).all()
+		year_patter = re.compile(u'(\d+)年')
+		year_pairs = []
+		for result in results:
+			url, txt = result
+			ret = re.search(year_patter, txt)
+			year = int(ret.group(1)) if ret else 2020
+			year_pairs.append((year, url))
+		pprint.pprint(sorted(year_pairs, key=lambda x:x[0], reverse=True))
+		M.draw_hist(map(lambda x:x[0], year_pairs), title=u'房屋年限')
+
 
 
 
