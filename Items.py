@@ -33,9 +33,9 @@ class LianJiaItem(object):
 		return (datetime.date.today() + datetime.timedelta(delta)).strftime('%y-%m-%d')
 
 	@classmethod
-	def check_page_crawled(cls, page, start_url):
+	def check_page_crawled(cls, **kwargs):
 		#检查是否曾经爬过这个页面. 对于一个单向队列的网页,用这个可以
-		return session.query(cls).filter(and_(cls.start_url==start_url, cls.page==page, cls.date==cls.get_today_str())).count() > 0
+		return session.query(cls).filter(and_(cls.start_url==kwargs.get('start_url'), cls.page==kwargs.get('page'), cls.date==cls.get_today_str())).count() > 0
 
 	@classmethod
 	def check_primary_existence(cls, item):
@@ -66,8 +66,9 @@ class DealItem(LianJiaItem, Model):
 	deal_cycle_txt = Column(Text())
 
 	@classmethod
-	def check_page_crawled(cls, page, start_url):
-		return session.query(cls).filter(and_(cls.start_url==start_url, cls.page==page)).count() > 0
+	def check_page_crawled(cls, **kwargs):
+		return session.query(cls).filter(and_(cls.start_url==kwargs.get('start_url'), cls.page==kwargs.get('page'))).count() > 0
+		#return session.query(cls).filter(and_(cls.start_url==kwargs.get('start_url'), cls.url==kwargs.get('url'))).count() > 0
 
 class HouseItem(LianJiaItem, Model):
 	__tablename__ = 'house'

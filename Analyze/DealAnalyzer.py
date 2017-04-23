@@ -12,7 +12,8 @@ class DealAnalyzer(BaseAnalyzer):
 		#self._handle_deal_cycle()
 		#self._print_start_levels()
 		#self._handle_price()
-		self._handle_year()
+		#self._handle_year()
+		self._handle_size()
 		pass
 
 	def _print_start_levels(self):
@@ -61,6 +62,18 @@ class DealAnalyzer(BaseAnalyzer):
 			year_pairs.append((year, url))
 		pprint.pprint(sorted(year_pairs, key=lambda x:x[0], reverse=True))
 		M.draw_hist(map(lambda x:x[0], year_pairs), title=u'房屋年限')
+
+	def _handle_size(self):
+		results = db.query(DealItem.url, DealItem.title).all()
+		size_patter = re.compile(u'([0-9.]+)平米')
+		size_pairs = []
+		for result in results:
+			url, txt = result
+			ret = re.search(size_patter, txt)
+			size = float(ret.group(1)) if ret else -1
+			size_pairs.append((size, url))
+		pprint.pprint(sorted(size_pairs, key=lambda x:x[0], reverse=False))
+		M.draw_hist(map(lambda x:x[0], size_pairs), title=u'房屋大小')
 
 
 

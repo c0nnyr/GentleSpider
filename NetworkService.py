@@ -19,6 +19,7 @@ class NetworkService(object):
 		super(NetworkService, self).__init__()
 		self.session = session = requests.Session()
 		session.headers.update(self.DEFAULT_HEADER)
+		session.keep_alive = False
 
 	def send_request(self, request, **kwargs):
 		logging.info('Requesting {}'.format(request))
