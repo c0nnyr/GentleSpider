@@ -92,6 +92,7 @@ class ProxyItem(p_Model):
 			if usable_proxy_count == 0:
 				return None, None
 			offset = random.randint(0, usable_proxy_count - 1)
+			logging.info('use proxy of {} / {}'.format(offset, usable_proxy_count))
 			proxy_item = p_session.query(cls).filter(usable_proxy_filter).offset(offset).first()
 			return {http_type.lower() : '{}:{}'.format(proxy_item.ip, proxy_item.port)}, proxy_item.my_score
 		except Exception as ex:

@@ -89,6 +89,7 @@ class Dispatcher(BaseObject):
 									self._proxy_mgr.crawl_new_proxies(proxy_dispatcher)
 									proxy = self._proxy_mgr.pick_proxy(request_or_item.url)#再不行就没救了
 							try:
+								response = None
 								response = self._network_service.send_request(request_or_item, proxies=proxy, timeout=self.REQUEST_TIMEOUT)
 								response = spider.try_validate(response, proxy=proxy, timeout=self.REQUEST_TIMEOUT)#直接视图串行解决validate的问题
 								if not response:
