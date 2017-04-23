@@ -14,6 +14,7 @@ class BaseSpider(object):
 
 	def set_network_service(self, net):
 		self.net = net
+		net.clear()
 
 	def get_start_requests(self):
 		if len(self.metas) == len(self.start_urls):

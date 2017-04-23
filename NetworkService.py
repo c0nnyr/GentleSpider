@@ -17,12 +17,30 @@ class NetworkService(object):
 	}
 	def __init__(self):
 		super(NetworkService, self).__init__()
-		self.session = session = requests.Session()
-		session.headers.update(self.DEFAULT_HEADER)
-		session.keep_alive = False
+		self.session = None
+		self.cur_proxies = None
+
+	def _update_session(self, proxies):
+		if proxies != self.cur_proxies:
+			if self.session:
+				self.session.close()
+				self.session = None
+		if not self.session:
+			self.session = session = requests.Session()
+			session.headers.update(self.DEFAULT_HEADER)
+			session.keep_alive = False
+			self.cur_proxies = proxies
+		#requests.adapters.DEFAULT_RETRIES = 5
+
+	def clear(self):
+		if self.session:
+			self.session.close()
+			self.session = None
+		self.cur_proxies = None
 
 	def send_request(self, request, **kwargs):
 		logging.info('Requesting {}'.format(request))
+		self._update_session(kwargs.get('proxies'))
 
 		if request.method == 'post':
 			r = self.session.post(request.url, request.data, **kwargs)
