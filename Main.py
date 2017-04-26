@@ -95,7 +95,6 @@ def post_handle():
 	db2 = Items.DealItem2.db
 	db = Items.DealItem.db
 	import re
-	direction_pattern = re.compile(u'(\d)室')
 	sum_count = 0
 	for ind, item in enumerate(db2.query(Items.DealItem2).all()):
 		print ind
@@ -105,7 +104,7 @@ def post_handle():
 			meta_area = item.meta_area,
 			meta_price_level = item.meta_price_level,
 			meta_start_url = item.meta_start_url,
-			meta_direction = u'南',
+			meta_direction = 2,
 
 			url = item.url,
 			deal_id = item.deal_id,
@@ -120,13 +119,15 @@ def post_handle():
 			deal_cycle_txt = item.deal_cycle_txt,
 		)
 		if item.house_info.startswith(u'东'):
-			new_item.meta_direction = u'东'
+			new_item.meta_direction = 1
+		elif item.house_info.startswith(u'南 北'):
+			new_item.meta_direction = 5
 		elif item.house_info.startswith(u'南'):
-			new_item.meta_direction = u'南'
+			new_item.meta_direction = 2
 		elif item.house_info.startswith(u'西'):
-			new_item.meta_direction = u'西'
+			new_item.meta_direction = 3
 		elif item.house_info.startswith(u'北'):
-			new_item.meta_direction = u'北'
+			new_item.meta_direction = 4
 
 		db.add(new_item)
 		sum_count += 1
