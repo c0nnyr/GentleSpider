@@ -1,5 +1,14 @@
 # coding:utf-8
-import functools
+import functools, traceback, sys
+from sqlalchemy.orm import sessionmaker
+from sqlalchemy.ext.declarative import declarative_base
+from sqlalchemy import Column, Integer, String, Text, Float, create_engine, and_, or_, DateTime
+
+def create_db_engine(db_name):
+	engine = create_engine('sqlite:///{}.sqlite'.format(db_name))
+	session = sessionmaker(bind=engine)()
+	Model = declarative_base(name=db_name)
+	return engine, session, Model
 
 def is_item(arg):
 	return getattr(arg.__class__, 'IS_ITEM', False)
@@ -28,7 +37,6 @@ def fill_meta_extract_start_urls(base_url, base_metas):
 	start_urls = [base_url.format(page='', **meta) for meta in base_metas]
 	for start_url, meta in zip(start_urls, base_metas):
 		meta['start_url'] = start_url
-		meta['page'] = 1
 	return start_urls
 
 def draw_hist(x, x_lable='', y_lable='', title='', bin_count=50):
@@ -46,5 +54,15 @@ def draw_hist(x, x_lable='', y_lable='', title='', bin_count=50):
 	# Tweak spacing to prevent clipping of ylabel
 	#fig.tight_layout()
 	plt.show()
+
+
+def auto_inc():
+	return sys._getframe(1).f_lineno
+
+if __name__ == '__main__':
+	print auto_inc()
+	import os
+	if not os.path.exists('a/b/c'):
+		os.makedirs('a/b/c')
 
 

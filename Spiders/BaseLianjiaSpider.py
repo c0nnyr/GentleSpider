@@ -2,14 +2,13 @@
 from BaseSpider import BaseSpider
 import math, re, json, urllib
 from Request import Request
-import logging, time
+import logging, time, collections
 
 class BaseLianjiaSpider(BaseSpider):
 
 	MAX_COUNT_PER_PAGE = 30
 	MAX_PAGE = 100
 
-	VALIDATE_XPATH = None
 	BASE_URL = None
 
 	CHECK_HAS_CRAWLED_PAGE = False
@@ -18,17 +17,26 @@ class BaseLianjiaSpider(BaseSpider):
 
 	TRY_VALIDATE_THRESHOLD = 20
 
-	def is_valid_response(self, response):
-		return bool(response.xpath(self.VALIDATE_XPATH))#至少存在这个
+	def __init__(self):
+		super(BaseLianjiaSpider, self).__init__()
+		self.is_already_crawled = collections.defaultdict(lambda :0)
 
-	def _parse_multipage(self, response, item_cls, item_xpath, item_attr_map, total_count_xpath):
+	def _parse_multipage(self, response, item_cls, item_xpath, item_attr_map, total_count_xpath, meta_store_attrs):
 		item_count = 0
-		for item in self._parse_items(response, item_xpath, item_attr_map, item_cls, self.add_page):
+		existed_count = 0
+		for item in self._parse_items(response, item_xpath, item_attr_map, item_cls, meta_store_attrs):
 			item_count += 1
+			if item.check_existence():
+				existed_count += 1
 			yield item
 
-		start_url = response.meta['start_url']
+		if existed_count > self.MAX_PAGE / 2:
+			logging.info('finished this meta {}'.format(response.meta))
+			return
+		elif existed_count > 0:
+			logging.info('existing count {}'.format(existed_count))
 
+		start_url = response.meta['start_url']
 		cur_page = response.meta.get('page', 1)
 		total_pages = response.meta.get('total_pages')
 
@@ -38,30 +46,24 @@ class BaseLianjiaSpider(BaseSpider):
 
 		if item_count == self.MAX_COUNT_PER_PAGE:
 			next_page = cur_page + 1
-			while next_page <= total_pages:
-				url = self._get_next_page_url(response, next_page)
-				if self.CHECK_HAS_CRAWLED_PAGE and item_cls.check_page_crawled(page=next_page, start_url=start_url, url=url):
-					logging.info('has crawed page {} ind, url {}'.format(next_page, url))
-					next_page += 1
-					continue
-				if url:
-					meta = dict(**response.meta)
-					meta['page'] = next_page
-					logging.info('total pages {}, ready to request {}'.format(total_pages, next_page))
-					yield Request(url, meta=meta)
-				break
+			if next_page <= total_pages:
+				url = self._get_page_url(response.meta, next_page)
+				#if self.CHECK_HAS_CRAWLED_PAGE and item_cls.check_page_crawled(page=next_page, start_url=start_url, url=url):
+					#logging.info('has crawed page {} ind, url {}'.format(next_page, url))
+					#next_page += 1
+					#continue
+				meta = response.meta.copy()
+				meta['page'] = next_page
+				meta['total_pages'] = total_pages
+				logging.info('total pages {}, ready to request {}'.format(total_pages, next_page))
+				yield Request(url, meta=meta)
 		else:
 			logging.info('finish start_url {}'.format(start_url))
 
-	def _get_next_page_url(self, response, next_page):
-		dct = dict(**response.meta)
-		dct['page'] = 'pg%d' % next_page#用于构建url
+	def _get_page_url(self, meta, page):
+		dct = meta.copy()
+		dct['page'] = 'pg%d' % page#用于构建url
 		return self.BASE_URL.format(**dct)
-
-	@staticmethod
-	def add_page(response, dct):
-		dct['page'] = response.meta.get('page', 1)
-		return dct
 
 	def try_validate(self, response, proxy, timeout):
 		if self.is_valid_response(response):
@@ -80,6 +82,7 @@ class BaseLianjiaSpider(BaseSpider):
 				try_validate_count += 1
 				if try_validate_count > self.TRY_VALIDATE_THRESHOLD:
 					return original_response
+				logging.info('{} / {} of validate'.format(try_validate_count, self.TRY_VALIDATE_THRESHOLD))
 
 				response = self.net.send_request(Request(self.VALIDATE_IMG_URL), proxies=proxy, timeout=timeout)
 				dct = json.loads(response.body)

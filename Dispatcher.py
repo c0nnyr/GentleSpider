@@ -51,7 +51,7 @@ class Dispatcher(BaseObject):
 				break
 			request_or_item = request_or_items_list.pop(0)
 			if M.is_item(request_or_item):
-				logging.info('Find item {}'.format(request_or_item.__dict__))
+				logging.info('Find item {}'.format(request_or_item))
 				for handler in self._item_handler_list:
 					try:
 						handler.handle(request_or_item)

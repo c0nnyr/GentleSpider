@@ -43,3 +43,8 @@ class Request(object):
 		return '<Request {} {} {}>'.format(self._url, self._data, self._meta)
 	__repr__ = __str__
 
+class RequestImg(Request):
+	def __init__(self, *args, **kwargs):
+		if 'callback' not in kwargs:
+			kwargs['callback'] = '_parse_img'
+		super(RequestImg, self).__init__(*args, **kwargs)
