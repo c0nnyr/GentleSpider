@@ -40,7 +40,10 @@ class Dispatcher(BaseObject):
 			assert isinstance(spider, BaseSpider), 'spider must be instance of BaseSpider'
 			spider.set_network_service(self._network_service)
 			request_or_items = spider.get_start_requests()
-			self._run(M.arg_to_iter(request_or_items), spider)
+			try:
+				self._run(M.arg_to_iter(request_or_items), spider)
+			except:
+				pass
 		for handler in itertools.chain(self._item_handler_list, self._response_handler_list, self._request_handler_list):
 			handler.close_spider()
 
