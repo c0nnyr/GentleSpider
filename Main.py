@@ -3,7 +3,7 @@ from NetworkService import NetworkService
 from Dispatcher import Dispatcher
 from Handlers import SqlItemHandler, StatisticItemHandler, LianjiaValidateWarnResponseHandler, RandomWaitRequestHandler
 from BaseHandler import BaseItemHandler
-from Spiders import DealSpider
+from Spiders import DealSpider, HouseSpider
 from Logger import Logger
 from Analyze import DealAnalyzer
 import optparse, logging, datetime, json

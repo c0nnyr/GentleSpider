@@ -5,7 +5,7 @@ from Items import HouseItem
 import GlobalMethod as M
 
 class HouseSpider(BaseLianjiaSpider):
-	BASE_URL = 'http://cd.lianjia.com/ershoufang/{district}/{page}co32l{house_type}a{area}p{price_level}/'#最新发布排序
+	BASE_URL = 'http://cd.lianjia.com/ershoufang/{district}/{page}co32a{area}p{price_level}/'#最新发布排序
 	VALIDATE_XPATH = '/html/body/div[4]/div[contains(@class,"leftContent")]'
 	DISTRICTS = [ 'jinjiang', 'qingyang', 'wuhou', 'gaoxing7', 'chenghua', 'jinniu', \
 				  'gaoxinxi1', 'pidou', 'tianfuxinqu', 'shuangliu', 'wenjiang', \
@@ -30,32 +30,29 @@ class HouseSpider(BaseLianjiaSpider):
 		7,#150~200
 		8,#>200
 	]
-	HOUSE_TYPES = [
-		1,
-		2,
-		3,
-		4,
-		5,#四室以上
-	]
-	metas = [{'price_level':price_level, 'district':district, 'area':area, 'house_type':house_type}
-			 for price_level in PRICE_LEVELS for district in DISTRICTS for area in AREAS for house_type in HOUSE_TYPES]
+	metas = [{'price_level':price_level, 'district':district, 'area':area, }
+			 for price_level in PRICE_LEVELS
+			 for district in DISTRICTS
+			 for area in AREAS]
 	start_urls = M.fill_meta_extract_start_urls(BASE_URL, metas)
 
 	def parse(self, response):
 		attr_map = {
 			#attr xpath, re_filter
-			'url':self.pack('div[1]/div[contains(@class,"title")]/a/@href',),#这里不能再添加根了，不能/divxx or /li/div
-			'id':self.pack('div[1]/div[contains(@class,"title")]/a/@href', r'ershoufang/(?P<extract>\S+)\.'),
-			'title':self.pack('div[1]/div[contains(@class,"title")]/a/text()',),
-			'house_info_resblock':self.pack('div[1]/div[contains(@class, "address")]/div[contains(@class, "houseInfo")]/a/text()', ),
-			'house_info':self.pack('div[1]/div[contains(@class, "address")]/div[contains(@class, "houseInfo")]/text()', ),
-			'position_info_district':self.pack('div[1]/div[contains(@class, "flood")]/div[contains(@class, "positionInfo")]/a/text()', ),
-			'position_info':self.pack('div[1]/div[contains(@class, "flood")]/div[contains(@class, "positionInfo")]/text()', ),
-			'follow_info':self.pack('div[1]/div[contains(@class, "followInfo")]/text()', ),
-			'total_price':self.pack('div[1]/div[contains(@class, "priceInfo")]/div[contains(@class, "totalPrice")]/span/text()', ),
-			'price_per_sm':self.pack('div[1]/div[contains(@class, "priceInfo")]/div[contains(@class, "unitPrice")]/span/text()', ),
-			'tag':self.pack('div[1]/div[contains(@class, "tag")]/span/text()', ),
+			'url':dict(xpath='div[1]/div[contains(@class,"title")]/a/@href',),#这里不能再添加根了，不能/divxx or /li/div
+			'house_id':dict(xpath='div[1]/div[contains(@class,"title")]/a/@href', re_filter=r'ershoufang/(?P<extract>\S+)\.'),
+			'title':dict(xpath='div[1]/div[contains(@class,"title")]/a/text()',),
+			'house_info_resblock':dict(xpath='div[1]/div[contains(@class, "address")]/div[contains(@class, "houseInfo")]/a/text()', ),
+			'house_info':dict(xpath='div[1]/div[contains(@class, "address")]/div[contains(@class, "houseInfo")]/text()', ),
+			'position_info_district':dict(xpath='div[1]/div[contains(@class, "flood")]/div[contains(@class, "positionInfo")]/a/text()', ),
+			'position_info':dict(xpath='div[1]/div[contains(@class, "flood")]/div[contains(@class, "positionInfo")]/text()', ),
+			'follow_info':dict(xpath='div[1]/div[contains(@class, "followInfo")]/text()', ),
+			'total_price':dict(xpath='div[1]/div[contains(@class, "priceInfo")]/div[contains(@class, "totalPrice")]/span/text()', ),
+			'unit_price':dict(xpath='div[1]/div[contains(@class, "priceInfo")]/div[contains(@class, "unitPrice")]/span/text()', ),
+			'tag':dict(xpath='div[1]/div[contains(@class, "tag")]/span/text()', ),
 		}
-		for item in self._parse_multipage(response, HouseItem, '/html/body/div[4]/div[1]/ul/li', attr_map, '/html/body/div[4]/div[1]/div[2]/h2/span/text()'):
+		for item in self._parse_multipage(response, HouseItem, '/html/body/div[4]/div[1]/ul/li', attr_map, \
+										  '/html/body/div[4]/div[1]/div[2]/h2/span/text()', \
+										  ('district', 'price_level', 'area', 'start_url')):
 			yield item
 
