@@ -58,11 +58,11 @@ class ProxyItem(_Model):
 
 	__tablename__ = 'proxy'
 
-	start_url = Column(Text())
-	original_data = Column(Text())
+	_cur_url = Column(Text())
+	_crawl_date = Column(Text())
 
 	ip = Column(Text(), primary_key=True)
-	port = Column(Integer(), primary_key=True)
+	port = Column(Text(), primary_key=True)
 	country = Column(Text())
 	location = Column(Text())
 	anonymouse_type = Column(Text())
@@ -72,7 +72,7 @@ class ProxyItem(_Model):
 	living_time = Column(Text())
 	validate_date = Column(Text())
 
-	DEFAULT_SCORE = 5
+	DEFAULT_SCORE = 2
 	my_score = Column(Integer(), default=DEFAULT_SCORE)
 
 
@@ -100,7 +100,6 @@ class ProxyItem(_Model):
 	def set_proxy_score(cls, proxy, score):
 		for ip_port in proxy.itervalues():
 			ip, port = ip_port.split(':')
-			port = int(port)
 
 			item = cls.db.query(cls).filter(and_(cls.ip == ip, cls.port == port)).first()
 			item.my_score = score

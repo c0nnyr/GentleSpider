@@ -58,7 +58,7 @@ def deal():
 
 	dispatcher.set_config({
 		'mode':dispatcher.DEPTH_MODE,
-		'use_proxy':False,
+		'use_proxy':True,
 	})
 
 	dispatcher.run(DealSpider.DealSpider())

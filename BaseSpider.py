@@ -33,7 +33,7 @@ class BaseSpider(object):
 	def is_valid_response(self, response):
 		return bool(response.xpath(self.VALIDATE_XPATH)) if self.VALIDATE_XPATH else None#至少存在这个
 
-	def _parse_items(self, response, item_xpath, attr_map, item_cls, meta_store_attrs, dct_handler=None):
+	def _parse_items(self, response, item_xpath, attr_map, item_cls, meta_store_attrs=('start_url',), dct_handler=None):
 		sel_items = response.xpath(item_xpath)
 		for sel in sel_items:
 			dct = {}
@@ -72,6 +72,7 @@ class BaseSpider(object):
 			#body = response.body
 			#dct['_response_body'] = cPickle.dumps(body if isinstance(body, unicode) else body.decode('utf-8'))
 			#dct['_request_response_id'] = response.id
+			dct['_cur_url'] = response.url
 			dct['_crawl_date'] = datetime.datetime.now()
 
 			yield item_cls(**dct)

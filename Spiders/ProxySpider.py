@@ -45,27 +45,20 @@ class ProxySpider1(BaseProxySpider):
 		xpath = '//*[@id="ip_list"]/tr[position()>1]'#不能有tbody,因为没有thead,tbody是自动生成的
 		attr_map = {
 			#attr xpath, re_filter
-			'country':self.pack('td[1]/img/@alt',),
-			'ip':self.pack('td[2]/text()',),
-			'port':self.pack('td[3]/text()',),
-			'location':self.pack('td[4]/a/text()',),
-			'anonymouse_type':self.pack('td[5]/text()',),
-			'http_type':self.pack('td[6]/text()', ),
-			'speed':self.pack('td[7]/div/@title', ),
-			'link_time':self.pack('td[8]/div/@title',),
-			'living_time':self.pack('td[9]/text()',),
-			'validate_date':self.pack('td[10]/text()', ),
+			'country':dict(xpath='td[1]/img/@alt',),
+			'ip':dict(xpath='td[2]/text()',),
+			'port':dict(xpath='td[3]/text()',),
+			'location':dict(xpath='td[4]/a/text()',),
+			'anonymouse_type':dict(xpath='td[5]/text()',),
+			'http_type':dict(xpath='td[6]/text()', ),
+			'speed':dict(xpath='td[7]/div/@title', ),
+			'link_time':dict(xpath='td[8]/div/@title',),
+			'living_time':dict(xpath='td[9]/text()',),
+			'validate_date':dict(xpath='td[10]/text()', ),
 		}
 
-		def post_handler(response, dct):
-			#dct['link_time'] = self.transform_time_to_seconds(dct['link_time'])
-			#dct['living_time'] = self.transform_time_to_seconds(dct['living_time'])
-			#dct['speed'] = self.transform_time_to_seconds(dct['speed'])
-			#dct['validate_date'] = datetime.datetime.strptime(dct['validate_date'], '%y-%m-%d %H:%M')
-			return dct
-
 		#正式开始解析
-		for item in self._parse_items(response, xpath, attr_map, ProxyItem, post_handler):
+		for item in self._parse_items(response, xpath, attr_map, ProxyItem, ):
 			yield item
 
 class ProxySpider2(BaseProxySpider):
@@ -82,32 +75,20 @@ class ProxySpider2(BaseProxySpider):
 		xpath = '//*[@id="list"]/table/tbody/tr'#这里需要有tbody,因为了thead
 		attr_map = {
 			#attr xpath, re_filter
-			'country':self.pack('', default='undefined'),
-			'ip':self.pack('td[1]/text()',),
-			'port':self.pack('td[2]/text()',),
-			'location':self.pack('td[5]/text()',),
-			'anonymouse_type':self.pack('td[3]/text()',),
-			'http_type':self.pack('td[4]/text()', ),
-			'speed':self.pack('td[6]/text()', ),
-			'link_time':self.pack('', default=None),
-			'living_time':self.pack('', default=None),
-			'validate_date':self.pack('td[7]/text()', ),
+			'country':dict(xpath=''),
+			'ip':dict(xpath='td[1]/text()',),
+			'port':dict(xpath='td[2]/text()',),
+			'location':dict(xpath='td[5]/text()',),
+			'anonymouse_type':dict(xpath='td[3]/text()',),
+			'http_type':dict(xpath='td[4]/text()', ),
+			'speed':dict(xpath='td[6]/text()', ),
+			'link_time':dict(xpath=''),
+			'living_time':dict(xpath=''),
+			'validate_date':dict(xpath='td[7]/text()', ),
 		}
 
-		def post_handler(response, dct):
-			#dct['link_time'] = self.transform_time_to_seconds(dct['link_time'])
-			#dct['living_time'] = self.transform_time_to_seconds(dct['living_time'])
-			#dct['speed'] = self.transform_time_to_seconds(dct['speed'])
-			#for format in ('%y-%m-%d %H:%M', '%Y-%m-%d %H:%M:%S'):
-			#	try:
-			#		dct['validate_date'] = datetime.datetime.strptime(dct['validate_date'], format)
-			#		break
-			#	except:
-			#		pass
-			return dct
-
 		#正式开始解析
-		for item in self._parse_items(response, xpath, attr_map, ProxyItem, post_handler):
+		for item in self._parse_items(response, xpath, attr_map, ProxyItem, ):
 			yield item
 
 class ProxySpider3(BaseProxySpider):
@@ -129,32 +110,20 @@ class ProxySpider3(BaseProxySpider):
 		xpath = '//div[contains(@class, "proxylistitem")]/div[1]'#这里需要有tbody,因为了thead
 		attr_map = {
 			#attr xpath, re_filter
-			'country':self.pack('span[4]/text()',),
-			'ip':self.pack('span[1]/text()',),
-			'port':self.pack('span[2]/text()',),
-			'location':self.pack('', default='undefined'),
-			'anonymouse_type':self.pack('span[3]/text()',),
-			'http_type':self.pack('', default='HTTP'),
-			'speed':self.pack('', default=None),
-			'link_time':self.pack('', default=None),
-			'living_time':self.pack('', default=None),
-			'validate_date':self.pack('span[5]/text()', ),
+			'country':dict(xpath='span[4]/text()',),
+			'ip':dict(xpath='span[1]/text()',),
+			'port':dict(xpath='span[2]/text()',),
+			'location':dict(xpath=''),
+			'anonymouse_type':dict(xpath='span[3]/text()',),
+			'http_type':dict(xpath='', default='HTTP'),
+			'speed':dict(xpath=''),
+			'link_time':dict(xpath=''),
+			'living_time':dict(xpath=''),
+			'validate_date':dict(xpath='span[5]/text()', ),
 		}
 
-		def post_handler(response, dct):
-			#dct['link_time'] = self.transform_time_to_seconds(dct['link_time'])
-			#dct['living_time'] = self.transform_time_to_seconds(dct['living_time'])
-			#dct['speed'] = self.transform_time_to_seconds(dct['speed'])
-			#for format in ('%y-%m-%d %H:%M', '%Y-%m-%d %H:%M:%S'):
-			#	try:
-			#		dct['validate_date'] = datetime.datetime.strptime(dct['validate_date'], format)
-			#		break
-			#	except:
-			#		pass
-			return dct
-
 		#正式开始解析
-		for item in self._parse_items(response, xpath, attr_map, ProxyItem, post_handler):
+		for item in self._parse_items(response, xpath, attr_map, ProxyItem, ):
 			yield item
 
 class ProxySpider4(BaseProxySpider):
