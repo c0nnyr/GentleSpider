@@ -75,15 +75,15 @@ class ProxySpider2(BaseProxySpider):
 		xpath = '//*[@id="list"]/table/tbody/tr'#这里需要有tbody,因为了thead
 		attr_map = {
 			#attr xpath, re_filter
-			'country':dict(xpath=''),
+			'country':dict(default=None),
 			'ip':dict(xpath='td[1]/text()',),
 			'port':dict(xpath='td[2]/text()',),
 			'location':dict(xpath='td[5]/text()',),
 			'anonymouse_type':dict(xpath='td[3]/text()',),
 			'http_type':dict(xpath='td[4]/text()', ),
 			'speed':dict(xpath='td[6]/text()', ),
-			'link_time':dict(xpath=''),
-			'living_time':dict(xpath=''),
+			'link_time':dict(default=None),
+			'living_time':dict(default=None),
 			'validate_date':dict(xpath='td[7]/text()', ),
 		}
 
@@ -113,12 +113,12 @@ class ProxySpider3(BaseProxySpider):
 			'country':dict(xpath='span[4]/text()',),
 			'ip':dict(xpath='span[1]/text()',),
 			'port':dict(xpath='span[2]/text()',),
-			'location':dict(xpath=''),
+			'location':dict(default=None),
 			'anonymouse_type':dict(xpath='span[3]/text()',),
-			'http_type':dict(xpath='', default='HTTP'),
-			'speed':dict(xpath=''),
-			'link_time':dict(xpath=''),
-			'living_time':dict(xpath=''),
+			'http_type':dict(default='HTTP'),
+			'speed':dict(defalt=None),
+			'link_time':dict(defalt=None),
+			'living_time':dict(defalt=None),
 			'validate_date':dict(xpath='span[5]/text()', ),
 		}
 
@@ -158,4 +158,4 @@ class ProxySpider4(BaseProxySpider):
 
 
 cls_list = [ProxySpider1, ProxySpider2, ProxySpider3, ProxySpider4]
-#cls_list = [ProxySpider4]
+cls_list = [ProxySpider2, ProxySpider3, ProxySpider4]

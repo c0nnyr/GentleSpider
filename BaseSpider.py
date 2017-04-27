@@ -45,7 +45,10 @@ class BaseSpider(object):
 
 				jump_to_end = False
 				if not xpath:
-					val = sel.extract()
+					if xpath is None:
+						val = default
+					else:
+						val = sel.extract()
 				else:
 					val = ''.join(sel.xpath(xpath).extract()).strip()#对于year_built，有多项
 					if not val:
