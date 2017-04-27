@@ -31,7 +31,7 @@ class BaseLianjiaSpider(BaseSpider):
 			yield item
 
 		if existed_count > self.MAX_COUNT_PER_PAGE / 3:
-			logging.info('finished this meta {}'.format(response.meta))
+			logging.info('*******finished this meta {} with existed_count {}'.format(response.meta, existed_count))
 			return
 		elif existed_count > 0:
 			logging.info('existing count {}'.format(existed_count))
