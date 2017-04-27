@@ -1,5 +1,5 @@
 # coding:utf-8
-from Items import session as db
+#from Items import session as db
 from Items import DealItem
 from BaseAnalyzer import BaseAnalyzer
 import pprint, re
@@ -11,9 +11,9 @@ class DealAnalyzer(BaseAnalyzer):
 	def run(self, **config):
 		#self._handle_deal_cycle()
 		#self._print_start_levels()
-		#self._handle_price()
+		self._handle_price()
 		#self._handle_year()
-		self._handle_size()
+		#self._handle_size()
 		pass
 
 	def _print_start_levels(self):
@@ -60,7 +60,7 @@ class DealAnalyzer(BaseAnalyzer):
 			ret = re.search(year_patter, txt)
 			year = int(ret.group(1)) if ret else 2020
 			year_pairs.append((year, url))
-		pprint.pprint(sorted(year_pairs, key=lambda x:x[0], reverse=True))
+		#pprint.pprint(sorted(year_pairs, key=lambda x:x[0], reverse=True))
 		M.draw_hist(map(lambda x:x[0], year_pairs), title=u'房屋年限')
 
 	def _handle_size(self):

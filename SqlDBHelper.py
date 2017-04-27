@@ -3,16 +3,15 @@ from sqlalchemy.orm import sessionmaker
 from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy import Column, Integer, String, Text, Float, create_engine, and_, or_, DateTime
 import datetime, random, logging
+import GlobalMethod as M
 from Request import Request
 from Response import Response
 
-rr_engine = create_engine('sqlite:///request_response_map.sqlite')
-rr_session_marker = sessionmaker(bind=rr_engine)
-rr_session = rr_session_marker()
-rr_Model = declarative_base(name='rr_Model')
+_engine, _session, _Model = M.create_db_engine('request_response_map')
 
-class RequestResponseMap(rr_Model):
+class RequestResponseMap(_Model):
 	__tablename__  = 'request_response_map'
+	db = _session
 
 	id = Column(Integer(),)
 	request = Column(Text(), primary_key=True)
@@ -39,25 +38,23 @@ class RequestResponseMap(rr_Model):
 	@classmethod
 	def get(cls, request):
 		request_str = request.dumps()
-		return rr_session.query(cls).filter(cls.request == request_str).first()
+		return cls.db.query(cls).filter(cls.request == request_str).first()
 
 	@classmethod
 	def store(cls, request, response):
 		request_response_pair = cls(request, response)
-		rr_session.merge(request_response_pair)
-		rr_session.commit()
+		cls.db.merge(request_response_pair)
+		cls.db.commit()
 		return request_response_pair.id
 
-rr_Model.metadata.create_all(rr_engine)#类型建立后,才能这样建立表
+_Model.metadata.create_all(_engine)#类型建立后,才能这样建立表
 
-p_engine = create_engine('sqlite:///proxy.sqlite')
-p_session_marker = sessionmaker(bind=p_engine)
-p_session = p_session_marker()
-p_Model = declarative_base(name='p_Model')
+_engine, _session, _Model = M.create_db_engine('proxy')
 
-class ProxyItem(p_Model):
+class ProxyItem(_Model):
 	'''一条代理信息记录'''
 	IS_ITEM = True
+	db = _session
 
 	__tablename__ = 'proxy'
 
@@ -88,12 +85,12 @@ class ProxyItem(p_Model):
 	def get_proper_proxy(cls, http_type):
 		try:
 			usable_proxy_filter = and_(cls.http_type == http_type, cls.my_score > 0)
-			usable_proxy_count = p_session.query(cls).filter(usable_proxy_filter).count()
+			usable_proxy_count = cls.db.query(cls).filter(usable_proxy_filter).count()
 			if usable_proxy_count == 0:
 				return None, None
 			offset = random.randint(0, usable_proxy_count - 1)
 			logging.info('use proxy of {} / {}'.format(offset, usable_proxy_count))
-			proxy_item = p_session.query(cls).filter(usable_proxy_filter).offset(offset).first()
+			proxy_item = cls.db.query(cls).filter(usable_proxy_filter).offset(offset).first()
 			return {http_type.lower() : '{}:{}'.format(proxy_item.ip, proxy_item.port)}, proxy_item.my_score
 		except Exception as ex:
 			logging.info('Exception {} when using get_proxies'.format(ex))
@@ -105,14 +102,14 @@ class ProxyItem(p_Model):
 			ip, port = ip_port.split(':')
 			port = int(port)
 
-			item = p_session.query(cls).filter(and_(cls.ip == ip, cls.port == port)).first()
+			item = cls.db.query(cls).filter(and_(cls.ip == ip, cls.port == port)).first()
 			item.my_score = score
 
-			p_session.merge(item)
-			p_session.commit()
+			cls.db.merge(item)
+			cls.db.commit()
 
 	@classmethod
 	def clear_all(cls):
-		p_session.query(cls).delete()
+		cls.db.query(cls).delete()
 
-p_Model.metadata.create_all(p_engine)#类型建立后,才能这样建立表
+_Model.metadata.create_all(_engine)#类型建立后,才能这样建立表
