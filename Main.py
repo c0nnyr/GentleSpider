@@ -58,7 +58,7 @@ def deal():
 
 	dispatcher.set_config({
 		'mode':dispatcher.DEPTH_MODE,
-		'use_proxy':True,
+		'use_proxy':False,
 	})
 
 	dispatcher.run(DealSpider.DealSpider())
@@ -104,7 +104,6 @@ def post_handle():
 			meta_area = item.meta_area,
 			meta_price_level = item.meta_price_level,
 			meta_start_url = item.meta_start_url,
-			meta_direction = 2,
 
 			url = item.url,
 			deal_id = item.deal_id,
@@ -118,17 +117,6 @@ def post_handle():
 			deal_house_text = item.deal_house_text,
 			deal_cycle_txt = item.deal_cycle_txt,
 		)
-		if item.house_info.startswith(u'东'):
-			new_item.meta_direction = 1
-		elif item.house_info.startswith(u'南 北'):
-			new_item.meta_direction = 5
-		elif item.house_info.startswith(u'南'):
-			new_item.meta_direction = 2
-		elif item.house_info.startswith(u'西'):
-			new_item.meta_direction = 3
-		elif item.house_info.startswith(u'北'):
-			new_item.meta_direction = 4
-
 		db.add(new_item)
 		sum_count += 1
 		if sum_count > 5000:

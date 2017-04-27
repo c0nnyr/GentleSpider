@@ -60,6 +60,7 @@ class BaseItem(object):
 #	district = Column(Text())
 #	bizcircle = Column(Text())
 #	year_built = Column(Integer())
+
 _engine, _session, _Model = M.create_db_engine('deal')
 class DealItem(BaseItem, _Model):
 	__tablename__ = 'deal'
@@ -69,7 +70,6 @@ class DealItem(BaseItem, _Model):
 	meta_area = Column(Text(), primary_key=True)
 	meta_price_level = Column(Text(), primary_key=True)
 	meta_start_url = Column(Text())
-	meta_direction = Column(Text(), primary_key=True)
 
 	url = Column(Text(), primary_key=True)
 	deal_id = Column(Text())
@@ -83,49 +83,11 @@ class DealItem(BaseItem, _Model):
 	deal_house_text = Column(Text())
 	deal_cycle_txt = Column(Text())
 
-	def check_already_stored(self):
+	def check_existence(self):
 		cls = self.__class__
-		return cls.db.query(cls).filter(meta_district=self.meta_district,
+		return cls.db.query(cls).filter_by(meta_district=self.meta_district,
 										meta_area=self.meta_area,
 										meta_price_level=self.meta_price_level,
-										meta_direction=self.meta_direction,
-										url=self.url).count() > 0
-
-	def __str__(self):
-		return '<{}> {} {}'.format(self.__class__.__name__, self.meta_start_url, self.url)
-	__repr__ = __str__
-
-_Model.metadata.create_all(_engine)#类型建立后,才能这样建立表
-
-_engine, _session, _Model = M.create_db_engine('deal')
-class DealItem(BaseItem, _Model):
-	__tablename__ = 'deal'
-	db = _session
-
-	meta_district = Column(Text(), primary_key=True)
-	meta_area = Column(Text(), primary_key=True)
-	meta_price_level = Column(Text(), primary_key=True)
-	meta_start_url = Column(Text())
-	meta_direction = Column(Text(), primary_key=True)
-
-	url = Column(Text(), primary_key=True)
-	deal_id = Column(Text())
-	deal_date = Column(Text())
-	title = Column(Text())
-	house_info = Column(Text())
-	total_price = Column(Text())
-	position_info = Column(Text())
-	deal_platform = Column(Text())
-	unit_price = Column(Text())
-	deal_house_text = Column(Text())
-	deal_cycle_txt = Column(Text())
-
-	def check_already_stored(self):
-		cls = self.__class__
-		return cls.db.query(cls).filter(meta_district=self.meta_district,
-										meta_area=self.meta_area,
-										meta_price_level=self.meta_price_level,
-										meta_direction=self.meta_direction,
 										url=self.url).count() > 0
 
 	def __str__(self):
