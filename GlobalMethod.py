@@ -3,6 +3,7 @@ import functools, traceback, sys
 from sqlalchemy.orm import sessionmaker
 from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy import Column, Integer, String, Text, Float, create_engine, and_, or_, DateTime
+import datetime
 
 def create_db_engine(db_name):
 	engine = create_engine('sqlite:///{}.sqlite'.format(db_name))
@@ -37,7 +38,11 @@ def fill_meta_extract_start_urls(base_url, base_metas):
 	start_urls = [base_url.format(page='', **meta) for meta in base_metas]
 	for start_url, meta in zip(start_urls, base_metas):
 		meta['start_url'] = start_url
+		meta['start_date'] = get_today_str()
 	return start_urls
+
+def get_today_str(delta=0):
+	return (datetime.date.today() + datetime.timedelta(delta)).strftime('%y-%m-%d')
 
 def draw_hist(x, x_lable='', y_lable='', title='', bin_count=50):
 	import numpy as np

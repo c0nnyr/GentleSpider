@@ -1,7 +1,7 @@
 # coding:utf-8
 from BaseLianjiaSpider import BaseLianjiaSpider
 import re
-from Items import HouseItem
+from Items import HouseItem, HouseStateItem
 import GlobalMethod as M
 
 class HouseSpider(BaseLianjiaSpider):
@@ -46,13 +46,21 @@ class HouseSpider(BaseLianjiaSpider):
 			'house_info':dict(xpath='div[1]/div[contains(@class, "address")]/div[contains(@class, "houseInfo")]/text()', ),
 			'position_info_district':dict(xpath='div[1]/div[contains(@class, "flood")]/div[contains(@class, "positionInfo")]/a/text()', ),
 			'position_info':dict(xpath='div[1]/div[contains(@class, "flood")]/div[contains(@class, "positionInfo")]/text()', ),
-			'follow_info':dict(xpath='div[1]/div[contains(@class, "followInfo")]/text()', ),
-			'total_price':dict(xpath='div[1]/div[contains(@class, "priceInfo")]/div[contains(@class, "totalPrice")]/span/text()', ),
-			'unit_price':dict(xpath='div[1]/div[contains(@class, "priceInfo")]/div[contains(@class, "unitPrice")]/span/text()', ),
 			'tag':dict(xpath='div[1]/div[contains(@class, "tag")]/span/text()', ),
 		}
 		for item in self._parse_multipage(response, HouseItem, '/html/body/div[4]/div[1]/ul/li', attr_map, \
 										  '/html/body/div[4]/div[1]/div[2]/h2/span/text()', \
 										  ('district', 'price_level', 'area', 'start_url')):
+			yield item
+		attr_map = {
+			#attr xpath, re_filter
+			'url':dict(xpath='div[1]/div[contains(@class,"title")]/a/@href',),#这里不能再添加根了，不能/divxx or /li/div
+			'follow_info':dict(xpath='div[1]/div[contains(@class, "followInfo")]/text()', ),
+			'total_price':dict(xpath='div[1]/div[contains(@class, "priceInfo")]/div[contains(@class, "totalPrice")]/span/text()', ),
+			'unit_price':dict(xpath='div[1]/div[contains(@class, "priceInfo")]/div[contains(@class, "unitPrice")]/span/text()', ),
+		}
+		for item in self._parse_multipage(response, HouseStateItem, '/html/body/div[4]/div[1]/ul/li', attr_map, \
+										  '/html/body/div[4]/div[1]/div[2]/h2/span/text()', \
+										  ('district', 'price_level', 'area', 'start_date')):
 			yield item
 
