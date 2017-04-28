@@ -3,7 +3,6 @@ from Request import Request
 import re, json, datetime, urllib, urlparse, sys, os, logging, time, math, cPickle
 
 class BaseSpider(object):
-	USE_CACHE = False
 	VALIDATE_XPATH = None
 
 	start_urls = ()
@@ -13,6 +12,10 @@ class BaseSpider(object):
 		if start_urls:
 			self.start_urls = start_urls
 		self.net = None
+		self.config = {}
+
+	def set_config(self, config):
+		self.config.update(config)
 
 	def set_network_service(self, net):
 		self.net = net
@@ -20,9 +23,9 @@ class BaseSpider(object):
 
 	def get_start_requests(self):
 		if len(self.metas) == len(self.start_urls):
-			return [Request(start_url, use_cache=self.USE_CACHE, meta=meta.copy()) for start_url, meta in zip(self.start_urls, self.metas)]
+			return [Request(start_url, meta=meta.copy()) for start_url, meta in zip(self.start_urls, self.metas)]
 		else:
-			return [Request(start_url, use_cache=self.USE_CACHE) for start_url in self.start_urls]
+			return [Request(start_url, ) for start_url in self.start_urls]
 
 	def parse(self, response):
 		pass

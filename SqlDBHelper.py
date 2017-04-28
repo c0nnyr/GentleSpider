@@ -53,7 +53,6 @@ _engine, _session, _Model = M.create_db_engine('proxy')
 
 class ProxyItem(_Model):
 	'''一条代理信息记录'''
-	IS_ITEM = True
 	db = _session
 
 	__tablename__ = 'proxy'

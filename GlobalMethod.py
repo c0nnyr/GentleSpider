@@ -3,7 +3,7 @@ import functools, traceback, sys
 from sqlalchemy.orm import sessionmaker
 from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy import Column, Integer, String, Text, Float, create_engine, and_, or_, DateTime
-import datetime
+import datetime, types
 
 def create_db_engine(db_name):
 	engine = create_engine('sqlite:///{}.sqlite'.format(db_name))
@@ -11,14 +11,13 @@ def create_db_engine(db_name):
 	Model = declarative_base(name=db_name)
 	return engine, session, Model
 
-def is_item(arg):
-	return getattr(arg.__class__, 'IS_ITEM', False)
-
 def arg_to_iter(arg):
 	if arg is None:
 		return []
-	elif not getattr(arg.__class__, 'IS_ITEM', False) and hasattr(arg, '__iter__'):
+	elif isinstance(arg, (list, tuple)):
 		return arg
+	elif isinstance(arg, types.GeneratorType):
+		return list(arg)
 	else:
 		return [arg]
 

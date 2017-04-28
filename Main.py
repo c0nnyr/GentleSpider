@@ -46,7 +46,7 @@ def proxy(spider_ids):
 	spiders = [spider_cls[_id - 1]() for _id in ids]
 	dispatcher.run(*spiders)
 
-def deal():
+def deal(city):
 	dispatcher.remove_all_handlers()
 
 	dispatcher.add_item_handler(SqlItemHandler.SqlItemHandler())
@@ -58,10 +58,11 @@ def deal():
 
 	dispatcher.set_config({
 		'mode':dispatcher.DEPTH_MODE,
-		'use_proxy':True,
+		'use_proxy':False,
+		'need_check_existence':False,
 	})
 
-	dispatcher.run(DealSpider.DealSpider())
+	dispatcher.run(DealSpider.DealSpider(city))
 
 def house():
 	dispatcher.remove_all_handlers()
@@ -128,7 +129,7 @@ if __name__ == '__main__':
 	parser = optparse.OptionParser()
 	parser.add_option('-p', '--proxy_spider', action='store', dest='proxy_spider', help='enable spider of proxy')
 	parser.add_option('-c', '--community_spider', action='store_true', dest='community_spider', help='enable spider of all community')
-	parser.add_option('-d', '--deal_spider', action='store_true', dest='deal_spider', help='enable spider of deal')
+	parser.add_option('-d', '--deal_spider', action='store', dest='deal_spider', help='enable spider of deal')
 	parser.add_option('-H', '--house_spider', action='store_true', dest='house_spider', help='enable spider of house')
 	parser.add_option('-a', '--analyze_deal', action='store_true', dest='analyze_deal', help='enable analyze deal')
 	parser.add_option('-m', '--music', action='store', dest='music', help='play music when end')
@@ -146,7 +147,7 @@ if __name__ == '__main__':
 		house()
 	if options.deal_spider:
 		logging.info('using deal spider')
-		deal()
+		deal(options.deal_spider)
 	if options.analyze_deal:
 		logging.info('using analyze deal')
 		analyze_deal()

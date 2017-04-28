@@ -11,23 +11,16 @@ class BaseLianjiaSpider(BaseSpider):
 
 	BASE_URL = None
 
-	CHECK_HAS_CRAWLED_PAGE = False
-	NEED_CHECK_EXISTENCE = False
-
 	VALIDATE_IMG_URL = 'http://captcha.lianjia.com/human'
 
 	TRY_VALIDATE_THRESHOLD = 20
-
-	def __init__(self):
-		super(BaseLianjiaSpider, self).__init__()
-		self.is_already_crawled = collections.defaultdict(lambda :0)
 
 	def _parse_multipage(self, response, item_cls, item_xpath, item_attr_map, total_count_xpath, meta_store_attrs):
 		item_count = 0
 		existed_count = 0
 		for item in self._parse_items(response, item_xpath, item_attr_map, item_cls, meta_store_attrs):
 			item_count += 1
-			if self.NEED_CHECK_EXISTENCE and item.check_existence():
+			if self.config.get('need_check_existence') and item.check_existence():
 				existed_count += 1
 			else:
 				yield item

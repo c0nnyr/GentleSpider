@@ -6,7 +6,6 @@ from sqlalchemy import Column, Integer, String, Text, Float, create_engine, and_
 import GlobalMethod as M
 
 class BaseItem(object):
-	IS_ITEM = True
 	def __init__(self, **kwargs):
 		super(BaseItem, self).__init__()
 		assert all((k in kwargs) for k in ('_crawl_date',))

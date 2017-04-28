@@ -5,15 +5,13 @@ from Items import DealItem
 
 class DealSpider(BaseLianjiaSpider):
 
-	CHECK_HAS_CRAWLED_PAGE = True
-	NEED_CHECK_EXISTENCE = True
-
-	BASE_URL = 'http://cd.lianjia.com/chengjiao/{district}/{page}a{area}p{price_level}/'
 	VALIDATE_XPATH = '/html/body/div[4]/div[contains(@class,"leftContent")]'
-	DISTRICTS = [ 'jinjiang', 'qingyang', 'wuhou', 'gaoxing7', 'chenghua', 'jinniu', \
+
+	BASE_URL_CD = 'http://cd.lianjia.com/chengjiao/{district}/{page}a{area}p{price_level}/'
+	DISTRICTS_CD = [ 'jinjiang', 'qingyang', 'wuhou', 'gaoxing7', 'chenghua', 'jinniu', \
 	              'gaoxinxi1', 'pidou', 'tianfuxinqu', 'shuangliu', 'wenjiang', \
 	              'longquanyi', 'xindou',]
-	PRICE_LEVELS = [
+	PRICE_LEVELS_CD = [
 		4,#80-100
 		5,#100-150
 		3,#60-80
@@ -23,6 +21,19 @@ class DealSpider(BaseLianjiaSpider):
 		7,#200-300
 		8,#>300
 	]
+
+	BASE_URL_HZ = 'http://hz.lianjia.com/chengjiao/{district}/{page}a{area}p{price_level}/'
+	DISTRICTS_HZ = ['xihu', 'xiacheng', 'jianggan', 'gongshu', 'shangcheng', 'binjiang', \
+					'yuhang', 'xiaoshan', 'xiasha']
+	PRICE_LEVELS_HZ = [
+		4,#200-300
+		5,#300-500
+		3,#150-200
+		2,#100-150
+		1,#<100
+		6,#>500
+	]
+
 	AREAS = [
 		1,#<50
 		2,#50~70
@@ -41,11 +52,24 @@ class DealSpider(BaseLianjiaSpider):
 		#5,
 	#]
 
-	metas = [{'price_level':price_level, 'district':district, 'area':area, }
-			 for price_level in PRICE_LEVELS
-			 for district in DISTRICTS
-			 for area in AREAS ]
-	start_urls = M.fill_meta_extract_start_urls(BASE_URL, metas)
+	def __init__(self, city='cd'):
+		super(DealSpider, self).__init__()
+		if city == 'cd':
+			self.metas = [{'price_level':price_level, 'district':district, 'area':area, }
+					 for price_level in self.PRICE_LEVELS_CD
+					 for district in self.DISTRICTS_CD
+					 for area in self.AREAS ]
+			self.BASE_URL = self.BASE_URL_CD
+		elif city == 'hz':
+			self.metas = [{'price_level':price_level, 'district':district, 'area':area, }
+						  for price_level in self.PRICE_LEVELS_HZ
+						  for district in self.DISTRICTS_HZ
+						  for area in self.AREAS ]
+			self.BASE_URL = self.BASE_URL_HZ
+		else:
+			raise Exception('not supported city')
+
+		self.start_urls = M.fill_meta_extract_start_urls(self.BASE_URL, self.metas)
 
 	def parse(self, response):
 		attr_map = {
