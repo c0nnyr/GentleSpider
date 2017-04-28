@@ -59,8 +59,7 @@ class HouseSpider(BaseLianjiaSpider):
 			'total_price':dict(xpath='div[1]/div[contains(@class, "priceInfo")]/div[contains(@class, "totalPrice")]/span/text()', ),
 			'unit_price':dict(xpath='div[1]/div[contains(@class, "priceInfo")]/div[contains(@class, "unitPrice")]/span/text()', ),
 		}
-		for item in self._parse_multipage(response, HouseStateItem, '/html/body/div[4]/div[1]/ul/li', attr_map, \
-										  '/html/body/div[4]/div[1]/div[2]/h2/span/text()', \
+		for item in self._parse_items(response, '/html/body/div[4]/div[1]/ul/li', attr_map, HouseStateItem, \
 										  ('district', 'price_level', 'area', 'start_date')):
 			yield item
 

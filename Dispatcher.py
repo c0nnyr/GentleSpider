@@ -42,7 +42,8 @@ class Dispatcher(BaseObject):
 			request_or_items = spider.get_start_requests()
 			try:
 				self._run(M.arg_to_iter(request_or_items), spider)
-			except:
+			except Exception as ex:
+				logging.info('Exception happens ex {}'.format(ex))
 				pass
 		for handler in itertools.chain(self._item_handler_list, self._response_handler_list, self._request_handler_list):
 			handler.close_spider()
@@ -130,7 +131,9 @@ class Dispatcher(BaseObject):
 							new_items = [item for item in new_request_or_items if M.is_item(item)]
 							new_requests = [request for request in new_request_or_items if not M.is_item(request)]
 							if self._mode == self.DEPTH_MODE:
-								request_or_items_list[0:0] = new_request_or_items
+								# request_or_items_list.extend(new_requests)
+								request_or_items_list[0:0] = new_requests
+								request_or_items_list[0:0] = new_items
 							elif self._mode == self.WIDTH_MODE:
 								request_or_items_list.extend(new_requests)
 								request_or_items_list[0:0] = new_items

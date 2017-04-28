@@ -136,7 +136,7 @@ class HouseStateItem(BaseItem, _Model):
 	unit_price = Column(Text())
 
 	def __str__(self):
-		return '<{}> {} {}'.format(self.__class__.__name__, self.meta_start_url, self.url)
+		return '<{}> {}'.format(self.__class__.__name__, self.url)
 	__repr__ = __str__
 
 _Model.metadata.create_all(_engine)#类型建立后,才能这样建立表
