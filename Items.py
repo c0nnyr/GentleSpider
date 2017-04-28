@@ -7,7 +7,6 @@ import GlobalMethod as M
 
 class BaseItem(object):
 	IS_ITEM = True
-	_crawl_date = Column(DateTime())
 	def __init__(self, **kwargs):
 		super(BaseItem, self).__init__()
 		assert all((k in kwargs) for k in ('_crawl_date',))
@@ -66,6 +65,7 @@ class DealItem(BaseItem, _Model):
 	__tablename__ = 'deal'
 	db = _session
 
+	_crawl_date = Column(DateTime())
 	meta_district = Column(Text(), primary_key=True)
 	meta_area = Column(Text(), primary_key=True)
 	meta_price_level = Column(Text(), primary_key=True)
@@ -101,6 +101,7 @@ class HouseItem(BaseItem, _Model):
 	__tablename__ = 'house'
 	db = _session
 
+	_crawl_date = Column(DateTime())
 	meta_district = Column(Text(), primary_key=True)
 	meta_area = Column(Text(), primary_key=True)
 	meta_price_level = Column(Text(), primary_key=True)
@@ -114,9 +115,6 @@ class HouseItem(BaseItem, _Model):
 	house_info = Column(Text())
 	position_info_district = Column(Text())
 	position_info = Column(Text())
-	follow_info = Column(Text())
-	total_price = Column(Text())
-	unit_price = Column(Text())
 	tag = Column(Text())
 
 	def check_existence(self):
@@ -128,6 +126,21 @@ class HouseItem(BaseItem, _Model):
 	def __str__(self):
 		return '<{}> {} {}'.format(self.__class__.__name__, self.meta_start_url, self.url)
 	__repr__ = __str__
+
+class HouseStateItem(BaseItem, _Model):
+	__tablename__ = 'house_state'
+	db = _session
+
+	meta_start_date = Column(Text(), primary_key=True)
+	meta_district = Column(Text(), primary_key=True)
+	meta_area = Column(Text(), primary_key=True)
+	meta_price_level = Column(Text(), primary_key=True)
+	url = Column(Text(), primary_key=True)
+
+	follow_info = Column(Text())
+	total_price = Column(Text())
+	unit_price = Column(Text())
+
 _Model.metadata.create_all(_engine)#类型建立后,才能这样建立表
 #
 #class BookItem(BaseItem, Model):

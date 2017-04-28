@@ -38,9 +38,9 @@ class StatisticItemHandler(BaseItemHandler):
 
 	def _try_post(self, item):
 		cur_time = time.time()
-		post_ind = int((cur_time - self.start_time) / 3600 / 2)#没两个小时通知一次
+		post_ind = int((cur_time - self.start_time) / 2)#没两个小时通知一次
 		if post_ind > self.cur_post_ind:
-			msg = 'Current find total items {}, current meta {}'.format(sum(self.statistic.itervalues()), item.meta)
+			msg = 'Current find total items {}, current meta {}'.format(sum(self.statistic.itervalues()), item.__dict__)
 			title = 'Spider statistic'
 			self.poster.post_immediatly(msg, title)
 			self.cur_post_ind = post_ind
