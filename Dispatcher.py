@@ -28,6 +28,7 @@ class Dispatcher(BaseObject):
 		self._proxy_mgr = None
 
 	def set_config(self, config):
+		logging.info('using config {}'.format(config))
 		self.config.update(config)
 		if self.config.get('use_proxy') and not self._proxy_mgr:
 			self._proxy_mgr = ProxyManager()
