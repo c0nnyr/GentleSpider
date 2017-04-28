@@ -117,12 +117,6 @@ class HouseItem(BaseItem, _Model):
 	position_info = Column(Text())
 	tag = Column(Text())
 
-	def check_existence(self):
-		cls = self.__class__
-		return cls.db.query(cls).filter_by(meta_district=self.meta_district,
-										   meta_area=self.meta_area,
-										   meta_price_level=self.meta_price_level,
-										   url=self.url).count() > 0
 	def __str__(self):
 		return '<{}> {} {}'.format(self.__class__.__name__, self.meta_start_url, self.url)
 	__repr__ = __str__
@@ -140,6 +134,10 @@ class HouseStateItem(BaseItem, _Model):
 	follow_info = Column(Text())
 	total_price = Column(Text())
 	unit_price = Column(Text())
+
+	def __str__(self):
+		return '<{}> {} {}'.format(self.__class__.__name__, self.meta_start_url, self.url)
+	__repr__ = __str__
 
 _Model.metadata.create_all(_engine)#类型建立后,才能这样建立表
 #

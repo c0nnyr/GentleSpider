@@ -6,6 +6,7 @@ from Items import DealItem
 class DealSpider(BaseLianjiaSpider):
 
 	CHECK_HAS_CRAWLED_PAGE = True
+	NEED_CHECK_EXISTENCE = True
 
 	BASE_URL = 'http://cd.lianjia.com/chengjiao/{district}/{page}a{area}p{price_level}/'
 	VALIDATE_XPATH = '/html/body/div[4]/div[contains(@class,"leftContent")]'
