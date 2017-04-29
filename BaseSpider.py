@@ -8,6 +8,8 @@ class BaseSpider(object):
 	start_urls = ()
 	metas = ()
 
+	START_FROM_LIKE_URL = None#从这个start url 继续开始
+
 	def __init__(self, start_urls=()):
 		if start_urls:
 			self.start_urls = start_urls
@@ -23,9 +25,14 @@ class BaseSpider(object):
 
 	def get_start_requests(self):
 		if len(self.metas) == len(self.start_urls):
-			return [Request(start_url, meta=meta.copy()) for start_url, meta in zip(self.start_urls, self.metas)]
+			rets = [Request(start_url, meta=meta.copy()) for start_url, meta in zip(self.start_urls, self.metas)]
 		else:
-			return [Request(start_url, ) for start_url in self.start_urls]
+			rets = [Request(start_url, ) for start_url in self.start_urls]
+		if self.START_FROM_LIKE_URL:
+			for ind, r in enumerate(rets):
+				if self.START_FROM_LIKE_URL in r.url:
+					return rets[ind:]
+		return rets
 
 	def parse(self, response):
 		pass

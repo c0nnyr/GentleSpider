@@ -48,7 +48,7 @@ def deal(city):
 
 	dispatcher.run(DealSpider.DealSpider(city))
 
-def house():
+def house(city):
 	dispatcher.remove_all_handlers()
 
 	dispatcher.add_item_handler(SqlItemHandler.SqlItemHandler())
@@ -60,9 +60,9 @@ def house():
 
 	dispatcher.set_config({
 		'mode':dispatcher.DEPTH_MODE,
-		'use_proxy':True,
+		'use_proxy':False,
 	})
-	dispatcher.run(HouseSpider.HouseSpider())
+	dispatcher.run(HouseSpider.HouseSpider(city))
 
 def analyze_deal():
 	analyzer = DealAnalyzer.DealAnalyzer()
@@ -81,7 +81,7 @@ if __name__ == '__main__':
 	parser = optparse.OptionParser()
 	parser.add_option('-c', '--community_spider', action='store', dest='community_spider', help='enable spider of all community')
 	parser.add_option('-d', '--deal_spider', action='store', dest='deal_spider', help='enable spider of deal')
-	parser.add_option('-H', '--house_spider', action='store_true', dest='house_spider', help='enable spider of house')
+	parser.add_option('-H', '--house_spider', action='store', dest='house_spider', help='enable spider of house')
 	parser.add_option('-a', '--analyze_deal', action='store_true', dest='analyze_deal', help='enable analyze deal')
 	parser.add_option('-m', '--music', action='store', dest='music', help='play music when end')
 	parser.add_option('-P', '--post_handle', action='store_true', dest='post_handle', help='enable post handle')
@@ -92,7 +92,7 @@ if __name__ == '__main__':
 		community(options.community_spider)
 	if options.house_spider:
 		logging.info('using house spider')
-		house()
+		house(options.house_spider)
 	if options.deal_spider:
 		logging.info('using deal spider')
 		deal(options.deal_spider)
