@@ -80,7 +80,13 @@ class BaseLianjiaSpider(BaseSpider):
 				logging.info('{} / {} of validate'.format(try_validate_count, self.TRY_VALIDATE_THRESHOLD))
 
 				response = self.net.send_request(Request(self.VALIDATE_IMG_URL), proxies=proxy, timeout=timeout)
-				dct = json.loads(response.body)
+				try:
+					dct = json.loads(response.body)#可能返回的还是一个验证的网站
+				except:
+					logging.info('may return non json content, but validate page, try again')
+					csrf = re.search(r'name="_csrf" value="(?P<extract>\S*?)"', response.body).group('extract')
+					response = self.net.send_request(Request(self.VALIDATE_IMG_URL), proxies=proxy, timeout=timeout)
+					dct = json.loads(response.body)
 				formdata = {'_csrf':csrf, 'uuid':dct['uuid'], 'bitvalue':'2'}
 				time.sleep(1)
 				response = self.net.send_request(Request(self.VALIDATE_IMG_URL, method='post', data=formdata), \
