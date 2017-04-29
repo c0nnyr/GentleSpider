@@ -6,7 +6,6 @@ class MessagePostManager(object):
 	@staticmethod
 	def post_immediatly(content, title=None):
 		if title is None:title = content
-		logging.info('posting message content:{}, title {}'.format(content, title))
 		response = requests.post(
 			'https://api.alertover.com/v1/alert',
 			data={
@@ -16,4 +15,4 @@ class MessagePostManager(object):
 				'title': title,
 			}
 		)
-		logging.info('post message response {}'.format(content))
+		logging.info('post message content {} title {} response {}'.format(content, title, response.content))

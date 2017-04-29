@@ -158,4 +158,4 @@ class ProxySpider4(BaseProxySpider):
 
 
 cls_list = [ProxySpider1, ProxySpider2, ProxySpider3, ProxySpider4]
-cls_list = [ProxySpider2, ProxySpider3, ProxySpider4]
+#cls_list = [ProxySpider2, ProxySpider3, ProxySpider4]
