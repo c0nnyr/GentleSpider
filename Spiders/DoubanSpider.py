@@ -1,9 +1,38 @@
 # coding:utf-8
 from BaseSpider import BaseSpider
 import GlobalMethod as M
-from Items import BookItem
+from BaseItem import BaseItem
 import pprint, urllib
 from Request import Request, RequestImg
+from BaseItem import BaseItem
+from sqlalchemy import Column, Text, DateTime
+
+_engine, _session, _Model = M.create_db_engine('book')
+class BookItem(BaseItem, _Model):
+	IS_ITEM = True
+	__tablename__ = 'book'
+
+	url = Column(Text(), primary_key=True)
+	id = Column(Text())
+	title = Column(Text())
+	sub_title = Column(Text())
+	pub = Column(Text())
+	rating_nums = Column(Text())
+	rating_count = Column(Text())
+	description = Column(Text())
+	book_price = Column(Text())
+	img_url = Column(Text())
+
+	def __init__(self, **kwargs):
+		super(BookItem, self).__init__()
+		for k, v in kwargs.iteritems():
+			if hasattr(self, k):
+				setattr(self, k, v)
+
+	def __str__(self):
+		return '<BookItem>url {}, meta {}'.format(self.url, self._meta)
+
+_Model.metadata.create_all(_engine)#类型建立后,才能这样建立表
 
 class DoubanSpider(BaseSpider):
 

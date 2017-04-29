@@ -1,10 +1,9 @@
 # coding:utf-8
 #from Items import session as db
-from Items import DealItem
 from BaseAnalyzer import BaseAnalyzer
 import pprint, re
 import GlobalMethod as M
-from Spiders.DealSpider import DealSpider
+from Spiders.DealSpider import DealSpider, DealItem
 
 class DealAnalyzer(BaseAnalyzer):
 

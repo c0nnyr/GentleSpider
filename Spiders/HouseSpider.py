@@ -1,8 +1,54 @@
 # coding:utf-8
 from BaseLianjiaSpider import BaseLianjiaSpider
 import re
-from Items import HouseItem, HouseStateItem
+from BaseItem import BaseItem
 import GlobalMethod as M
+from sqlalchemy import Column, Text, DateTime
+
+_engine, _session, _Model = M.create_db_engine('house')
+class HouseItem(BaseItem, _Model):
+	__tablename__ = 'house'
+	db = _session
+
+	_crawl_date = Column(DateTime())
+	meta_district = Column(Text(), primary_key=True)
+	meta_area = Column(Text(), primary_key=True)
+	meta_price_level = Column(Text(), primary_key=True)
+	meta_start_url = Column(Text())
+
+	url = Column(Text(), primary_key=True)
+	house_id = Column(Text())
+
+	title = Column(Text())
+	house_info_resblock = Column(Text())
+	house_info = Column(Text())
+	position_info_district = Column(Text())
+	position_info = Column(Text())
+	tag = Column(Text())
+
+	def __str__(self):
+		return '<{}> {} {}'.format(self.__class__.__name__, self.meta_start_url, self.url)
+	__repr__ = __str__
+
+class HouseStateItem(BaseItem, _Model):
+	__tablename__ = 'house_state'
+	db = _session
+
+	meta_start_date = Column(Text(), primary_key=True)
+	meta_district = Column(Text(), primary_key=True)
+	meta_area = Column(Text(), primary_key=True)
+	meta_price_level = Column(Text(), primary_key=True)
+	url = Column(Text(), primary_key=True)
+
+	follow_info = Column(Text())
+	total_price = Column(Text())
+	unit_price = Column(Text())
+
+	def __str__(self):
+		return '<{}> {}'.format(self.__class__.__name__, self.url)
+	__repr__ = __str__
+
+_Model.metadata.create_all(_engine)#类型建立后,才能这样建立表
 
 class HouseSpider(BaseLianjiaSpider):
 	BASE_URL = 'http://cd.lianjia.com/ershoufang/{district}/{page}co32a{area}p{price_level}/'#最新发布排序
