@@ -85,8 +85,9 @@ class Dispatcher(BaseObject):
 					if self.config.get('use_cache'):
 						try:
 							response = RequestResponseMap.get(request_or_item)
-							logging.info('using cache {}'.format(request_or_item.url))
-							self._is_last_request_using_cache = True
+							if response:
+								logging.info('using cache {}'.format(request_or_item.url))
+								self._is_last_request_using_cache = True
 						except Exception as ex:
 							logging.info('Exception {} happens when try find request map'.format(ex))
 							response = None
