@@ -12,7 +12,7 @@ class RandomWaitRequestHandler(BaseRequestHandler):
 		if not self.has_handled:
 			self.has_handled = True
 			return
-		delta = random.randint(5, 10)
+		delta = random.randint(1, 3)
 		logging.info('waiting for {} seconds'.format(delta))
 		time.sleep(delta)
 
