@@ -38,7 +38,10 @@ class RequestResponseMap(_Model):
 	@classmethod
 	def get(cls, request):
 		request_str = request.dumps()
-		return cls.db.query(cls).filter(cls.request == request_str).first()
+		results = cls.db.query(cls.response).filter(cls.request == request_str).first()
+		if results:
+			return Response.loads(results[0])
+		return None
 
 	@classmethod
 	def store(cls, request, response):

@@ -24,9 +24,6 @@ class Response(object):
     @property
     def status(self):
         return self._status
-    @property
-    def id(self):
-        return self._id
 
     def dumps(self):
         return cPickle.dumps(dict(url=self.url, status=self.status, body=self.body, meta=self.meta))
@@ -49,6 +46,3 @@ class Response(object):
             return self._selector.re(regex)[0]
         except:
             return ''
-
-    def set_request_response_id(self, id):
-        self._id = id

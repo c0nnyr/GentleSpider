@@ -26,6 +26,7 @@ class Dispatcher(BaseObject):
 			'mode':self.DEPTH_MODE,
 		}
 		self._proxy_mgr = None
+		self._is_last_request_using_cache = False
 
 	def set_config(self, config):
 		logging.info('using config {}'.format(config))
@@ -69,22 +70,23 @@ class Dispatcher(BaseObject):
 						logging.info('Exception {} happens when using {}'.format(ex, handler))
 			else:
 				logging.info('Prepare to request {} {}'.format(request_or_item.url, request_or_item.__dict__))
+				b = self._is_last_request_using_cache
+				self._is_last_request_using_cache = False
 				for handler in self._request_handler_list:
 					try:
-						handler.handle(request_or_item)
+						if not handler.need_skip_when_use_cache(b):
+							handler.handle(request_or_item)
 					except Exception as ex:
 						logging.info('Exception {} happens when using {}'.format(ex, handler))
 						break
 				else:
 					callback = getattr(spider, request_or_item.callback or 'parse', None)#默认用parse函数
 					response = None
-					request_response_id = -1
 					if self.config.get('use_cache'):
 						try:
-							request_response_map = RequestResponseMap.get(request_or_item)
-							if request_response_map:
-								response = request_response_map.response
-								request_response_id = request_response_map.id
+							response = RequestResponseMap.get(request_or_item)
+							logging.info('using cache {}'.format(request_or_item.url))
+							self._is_last_request_using_cache = True
 						except Exception as ex:
 							logging.info('Exception {} happens when try find request map'.format(ex))
 							response = None
@@ -118,8 +120,7 @@ class Dispatcher(BaseObject):
 									self._proxy_mgr.feed_yes_or_no(False)
 								else:
 									raise ex
-						request_response_id = self._store_request_response(request_or_item, response)
-					response.set_request_response_id(request_response_id)
+						self._store_request_response(request_or_item, response)
 					for handler in self._response_handler_list:
 						try:
 							handler.handle(response)
@@ -164,6 +165,6 @@ class Dispatcher(BaseObject):
 		self._response_handler_list = []
 
 	def _store_request_response(self, request, response):
-		return RequestResponseMap.store(request, response)
+		RequestResponseMap.store(request, response)
 
 

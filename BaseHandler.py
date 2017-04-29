@@ -10,6 +10,7 @@ class BaseRequestHandler(object):
 	def open_spider(self): pass
 	def close_spider(self): pass
 	def handle(self, request): pass
+	def need_skip_when_use_cache(self, is_last_request_using_cache):pass
 
 class BaseResponseHandler(object):
 	def open_spider(self): pass

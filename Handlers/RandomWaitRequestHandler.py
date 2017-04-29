@@ -16,3 +16,6 @@ class RandomWaitRequestHandler(BaseRequestHandler):
 		logging.info('waiting for {} seconds'.format(delta))
 		time.sleep(delta)
 
+	def need_skip_when_use_cache(self, is_last_request_using_cache):
+		return is_last_request_using_cache
+
