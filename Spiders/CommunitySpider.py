@@ -68,7 +68,7 @@ class CommunitySpider(BaseLianjiaSpider):
 		if city == 'cd':
 			self.metas = [{'price_level':price_level, 'district':district} for price_level in self.PRICE_LEVELS_CD for district in self.DISTRICTS_CD]
 			self.BASE_URL = self.BASE_URL_CD
-		self.start_urls = M.fill_meta_extract_start_urls(self.BASE_URL_CD, self.metas)
+		self.start_urls = M.fill_meta_extract_start_urls(self.BASE_URL, self.metas)
 
 	def parse(self, response):
 		attr_map = {
