@@ -50,10 +50,21 @@ class CommunitySpider(BaseLianjiaSpider):
 	VALIDATE_XPATH = '/html/body/div[4]/div[contains(@class,"leftContent")]'
 
 	BASE_URL_CD = 'http://cd.lianjia.com/xiaoqu/{district}/{page}p{price_level}/'
+	BASE_URL_HZ = 'http://hz.lianjia.com/xiaoqu/{district}/{page}p{price_level}/'
 	DISTRICTS_CD = [ 'jinjiang', 'qingyang', 'wuhou', 'gaoxing7', 'chenghua', 'jinniu', \
 					 'gaoxinxi1', 'pidou', 'tianfuxinqu', 'shuangliu', 'wenjiang', \
 					 'longquanyi', 'xindou',]
 
+	DISTRICTS_HZ = ['xihu', 'xiacheng', 'jianggan', 'gongshu', 'shangcheng', 'binjiang', \
+					'yuhang', 'xiaoshan', 'xiasha']
+	PRICE_LEVELS_HZ = [
+		4,#200-300
+		5,#300-500
+		3,#150-200
+		2,#100-150
+		1,#<100
+		6,#>500
+	]
 	PRICE_LEVELS_CD = [
 		4,#1~1.5
 		5,#1.5~2
@@ -68,6 +79,9 @@ class CommunitySpider(BaseLianjiaSpider):
 		if city == 'cd':
 			self.metas = [{'price_level':price_level, 'district':district} for price_level in self.PRICE_LEVELS_CD for district in self.DISTRICTS_CD]
 			self.BASE_URL = self.BASE_URL_CD
+		elif city == 'hz':
+			self.metas = [{'price_level':price_level, 'district':district} for price_level in self.PRICE_LEVELS_HZ for district in self.DISTRICTS_HZ]
+			self.BASE_URL = self.BASE_URL_HZ
 		self.start_urls = M.fill_meta_extract_start_urls(self.BASE_URL, self.metas)
 
 	def parse(self, response):
