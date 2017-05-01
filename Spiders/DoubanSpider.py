@@ -6,11 +6,16 @@ import pprint, urllib
 from Request import Request, RequestImg
 from BaseItem import BaseItem
 from sqlalchemy import Column, Text, DateTime
+from sqlalchemy.ext.declarative import declarative_base
 
-_engine, _session, _Model = M.create_db_engine('book')
+_Model = declarative_base(name='book')
 class BookItem(BaseItem, _Model):
-	IS_ITEM = True
 	__tablename__ = 'book'
+
+	_crawl_date = Column(DateTime())
+
+	meta_start_url = Column(Text(), primary_key=True)
+	meta_tag = Column(Text(), primary_key=True)
 
 	url = Column(Text(), primary_key=True)
 	id = Column(Text())
@@ -30,9 +35,7 @@ class BookItem(BaseItem, _Model):
 				setattr(self, k, v)
 
 	def __str__(self):
-		return '<BookItem>url {}, meta {}'.format(self.url, self._meta)
-
-_Model.metadata.create_all(_engine)#类型建立后,才能这样建立表
+		return '<BookItem>url {}'.format(self.url)
 
 class DoubanSpider(BaseSpider):
 
@@ -41,6 +44,10 @@ class DoubanSpider(BaseSpider):
 	start_urls = [
 		'https://book.douban.com/tag/',
 	]
+	
+	def __init__(self):
+		super(DoubanSpider, self).__init__()
+		self.session = M.create_engine('book', _Model, prefix='data')
 
 	def parse(self, response):
 		tag_urls = response.xpath('//table[@class="tagCol"]/tbody/tr/td/a/@href').extract()
@@ -66,6 +73,6 @@ class DoubanSpider(BaseSpider):
 			'book_price':dict(xpath='div[@class="info"]/div[@class="ft"]/div/span[@class="buy-info"]/a/text()',),
 			'img_url':dict(xpath='div[@class="pic"]/a/img/@src',),
 		}
-		for item in self._parse_items_ex(response, item_xpath, attr_map, BookItem):
+		for item in self._parse_items(response, item_xpath, attr_map, BookItem, ('start_url', 'tag')):
 			yield item
 			yield RequestImg(item.img_url)

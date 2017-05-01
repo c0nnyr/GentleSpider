@@ -8,12 +8,7 @@ from Logger import Logger
 from Analyze import DealAnalyzer
 import optparse, logging, datetime, json
 
-Logger()
-net = NetworkService()
-dispatcher = Dispatcher()
-dispatcher.set_network_service(net)
-
-def community(city):
+def community(dispatcher, city):
 	dispatcher.remove_all_handlers()
 
 	dispatcher.add_item_handler(SqlItemHandler.SqlItemHandler())
@@ -28,9 +23,8 @@ def community(city):
 		'use_proxy':False,
 	})
 	dispatcher.run(CommunitySpider.CommunitySpider(city))
-	dispatcher.destroy()
 
-def deal(city):
+def deal(dispatcher, city):
 	dispatcher.remove_all_handlers()
 
 	dispatcher.add_item_handler(SqlItemHandler.SqlItemHandler())
@@ -47,9 +41,8 @@ def deal(city):
 	})
 
 	dispatcher.run(DealSpider.DealSpider(city))
-	dispatcher.destroy()
 
-def house(city):
+def house(dispatcher, city):
 	dispatcher.remove_all_handlers()
 
 	dispatcher.add_item_handler(SqlItemHandler.SqlItemHandler())
@@ -64,13 +57,12 @@ def house(city):
 		'use_proxy':False,
 	})
 	dispatcher.run(HouseSpider.HouseSpider(city))
-	dispatcher.destroy()
 
 def analyze_deal():
 	analyzer = DealAnalyzer.DealAnalyzer()
 	analyzer.run()
 
-def test():
+def test(dispatcher, ):
 	dispatcher.remove_all_handlers()
 
 	dispatcher.add_item_handler(SqlItemHandler.SqlItemHandler())
@@ -80,6 +72,10 @@ def post_handle():
 	pass
 
 if __name__ == '__main__':
+	Logger()
+	dispatcher = Dispatcher()
+	dispatcher.set_network_service(NetworkService())
+
 	parser = optparse.OptionParser()
 	parser.add_option('-C', '--city', action='store', dest='city', help='set city')
 	parser.add_option('-c', '--community_spider', action='store_true', dest='community_spider', help='enable spider of all community')
@@ -97,15 +93,15 @@ if __name__ == '__main__':
 	if options.community_spider:
 		logging.info('using community spider')
 		for city in cities:
-			community(city)
+			community(dispatcher, city)
 	if options.house_spider:
 		logging.info('using house spider')
 		for city in cities:
-			house(city)
+			house(dispatcher, city)
 	if options.deal_spider:
 		logging.info('using deal spider')
 		for city in cities:
-			deal(city)
+			deal(dispatcher, city)
 	if options.analyze_deal:
 		logging.info('using analyze deal')
 		analyze_deal()
@@ -119,4 +115,6 @@ if __name__ == '__main__':
 	if options.music:
 		import os
 		os.system('play ' + options.music)
+
+	dispatcher.destroy()
 
