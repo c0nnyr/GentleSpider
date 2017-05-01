@@ -3,6 +3,47 @@ from BaseSpider import BaseSpider
 import math, re, json, urllib
 from Request import Request
 import logging, time, collections
+import GlobalMethod as M
+from sqlalchemy.ext.declarative import declarative_base
+from sqlalchemy import Column, Integer, DateTime
+import random, datetime, collections
+
+_Model = declarative_base(name='validation')
+class ValidationItem(_Model):
+	__tablename__ = 'validation'
+	id = Column(Integer(), autoincrement=True, primary_key=True)
+	_crawl_date = Column(DateTime())
+	bitvalue = Column(Integer())
+
+	all_bitvalues = None
+	THRESHOLD_COUNT = 100
+
+	@classmethod
+	def initialize(cls, session):
+		if cls.all_bitvalues is None:
+			cls.all_bitvalues = collections.defaultdict(lambda :0)
+			for bitvalue, in session.query(cls.bitvalue):
+				cls.all_bitvalues[bitvalue] += 1
+	@classmethod
+	def get_possible_bitvalue(cls, session):
+		if sum(cls.all_bitvalues.itervalues()) < cls.THRESHOLD_COUNT:#超过100
+			return random.choice(range(1, 16))
+		else:
+			return sorted(cls.all_bitvalues.iterkeys(), lambda k:cls.all_bitvalues[k], reverse=True)[0]
+
+	@classmethod
+	def save(cls, session, bitvalue):
+		if sum(cls.all_bitvalues.itervalues()) >= cls.THRESHOLD_COUNT:#超过100
+			return
+		cls.all_bitvalues[bitvalue] += 1
+
+		item = cls()
+		item.bitvalue = bitvalue
+		item._crawl_date = datetime.datetime.now()
+		session.add(item)
+		session.commit()
+
+validation_session = M.create_engine('validation', _Model)
 
 class BaseLianjiaSpider(BaseSpider):
 
@@ -13,7 +54,7 @@ class BaseLianjiaSpider(BaseSpider):
 
 	VALIDATE_IMG_URL = 'http://captcha.lianjia.com/human'
 
-	TRY_VALIDATE_THRESHOLD = 20
+	TRY_VALIDATE_THRESHOLD = 30
 
 	def _parse_multipage(self, response, item_cls, item_xpath, item_attr_map, total_count_xpath, meta_store_attrs):
 		item_count = 0
@@ -65,6 +106,7 @@ class BaseLianjiaSpider(BaseSpider):
 			return response
 		original_response = response
 		try_validate_count = 0
+		ValidationItem.initialize(validation_session)
 		try:
 			original_url = urllib.unquote(re.search(r'redirect=(?P<extract>.*)', response.url).group('extract'))
 			original_meta = response.meta
@@ -87,12 +129,14 @@ class BaseLianjiaSpider(BaseSpider):
 					csrf = re.search(r'name="_csrf" value="(?P<extract>\S*?)"', response.body).group('extract')
 					response = self.net.send_request(Request(self.VALIDATE_IMG_URL), proxies=proxy, timeout=timeout)
 					dct = json.loads(response.body)
-				formdata = {'_csrf':csrf, 'uuid':dct['uuid'], 'bitvalue':'2'}
+				bitvalue = ValidationItem.get_possible_bitvalue(validation_session)
+				formdata = {'_csrf':csrf, 'uuid':dct['uuid'], 'bitvalue':str(bitvalue)}
 				time.sleep(1)
 				response = self.net.send_request(Request(self.VALIDATE_IMG_URL, method='post', data=formdata), \
 												 proxies=proxy, timeout=timeout)
 
 				if '"error":true' not in response.body:
+					ValidationItem.save(validation_session, bitvalue)
 					logging.info('finish validating')
 					time.sleep(1)
 					return self.net.send_request(Request(original_url, meta=original_meta), proxies=proxy, timeout=timeout)
