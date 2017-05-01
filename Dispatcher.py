@@ -8,7 +8,7 @@ import itertools, logging, time
 from SqlDBHelper import ProxyItem, RequestResponseMap
 from ProxyManager import ProxyManager
 
-class Dispatcher(BaseObject):
+class Dispatcher(object):
 	REQUEST_COUNT_THRESHOLD = 10
 	REQUEST_TIMEOUT = 3
 
@@ -27,6 +27,12 @@ class Dispatcher(BaseObject):
 		}
 		self._proxy_mgr = None
 		self._is_last_request_using_cache = False
+		self.session = M.create_engine('request_response_map', RequestResponseMap)
+
+	def destroy(self):
+		if self.session:
+			self.session.close()
+			self.session = None
 
 	def set_config(self, config):
 		logging.info('using config {}'.format(config))
@@ -34,6 +40,7 @@ class Dispatcher(BaseObject):
 		if self.config.get('use_proxy') and not self._proxy_mgr:
 			self._proxy_mgr = ProxyManager()
 		elif not self.config.get('use_proxy') and self._proxy_mgr:
+			self._proxy_mgr.destroy()
 			self._proxy_mgr = None
 
 	def run(self, *spiders):
@@ -51,6 +58,9 @@ class Dispatcher(BaseObject):
 		for handler in itertools.chain(self._item_handler_list, self._response_handler_list, self._request_handler_list):
 			handler.close_spider()
 
+		for spider in spiders:
+			spider.destroy()
+
 	@staticmethod
 	def is_request(instance):
 		return isinstance(instance, Request)
@@ -65,7 +75,7 @@ class Dispatcher(BaseObject):
 				logging.info('Find item {}'.format(request_or_item))
 				for handler in self._item_handler_list:
 					try:
-						handler.handle(request_or_item)
+						handler.handle(request_or_item, spider)
 					except Exception as ex:
 						logging.info('Exception {} happens when using {}'.format(ex, handler))
 			else:
@@ -75,7 +85,7 @@ class Dispatcher(BaseObject):
 				for handler in self._request_handler_list:
 					try:
 						if not handler.need_skip_when_use_cache(b):
-							handler.handle(request_or_item)
+							handler.handle(request_or_item, spider)
 					except Exception as ex:
 						logging.info('Exception {} happens when using {}'.format(ex, handler))
 						break
@@ -84,7 +94,7 @@ class Dispatcher(BaseObject):
 					response = None
 					if self.config.get('use_cache'):
 						try:
-							response = RequestResponseMap.get(request_or_item)
+							response = RequestResponseMap.get(self.session, request_or_item)
 							if response:
 								logging.info('using cache {}'.format(request_or_item.url))
 								self._is_last_request_using_cache = True
@@ -100,6 +110,8 @@ class Dispatcher(BaseObject):
 									proxy_dispatcher = Dispatcher()
 									proxy_dispatcher.set_network_service(self._network_service)
 									self._proxy_mgr.crawl_new_proxies(proxy_dispatcher)
+									proxy_dispatcher.destroy()
+									proxy_dispatcher = None
 									proxy = self._proxy_mgr.pick_proxy(request_or_item.url)#再不行就没救了
 							try:
 								response = None
@@ -124,7 +136,7 @@ class Dispatcher(BaseObject):
 						self._store_request_response(request_or_item, response)
 					for handler in self._response_handler_list:
 						try:
-							handler.handle(response)
+							handler.handle(response, spider)
 						except Exception as ex:
 							logging.info('Exception {} happens when using {}'.format(ex, handler))
 							break
@@ -166,6 +178,6 @@ class Dispatcher(BaseObject):
 		self._response_handler_list = []
 
 	def _store_request_response(self, request, response):
-		RequestResponseMap.store(request, response)
+		RequestResponseMap.store(self.session, request, response)
 
 

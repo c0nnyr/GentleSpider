@@ -3,11 +3,11 @@ from BaseLianjiaSpider import BaseLianjiaSpider
 import GlobalMethod as M
 from BaseItem import BaseItem
 from sqlalchemy import Column, Text, DateTime
+from sqlalchemy.ext.declarative import declarative_base
 
-_engine, _session, _Model = M.create_db_engine('community')
+_Model = declarative_base(name='community')
 class CommunityItem(BaseItem, _Model):
 	__tablename__ = 'community'
-	db = _session
 
 	_crawl_date = Column(DateTime())
 	meta_district = Column(Text(), primary_key=True)
@@ -29,7 +29,6 @@ class CommunityItem(BaseItem, _Model):
 
 class CommunityStateItem(BaseItem, _Model):
 	__tablename__ = 'community_state'
-	db = _session
 
 	meta_start_date = Column(Text(), primary_key=True)
 	meta_district = Column(Text(), primary_key=True)
@@ -45,44 +44,50 @@ class CommunityStateItem(BaseItem, _Model):
 		return '<{}> {}'.format(self.__class__.__name__, self.url)
 	__repr__ = __str__
 
-_Model.metadata.create_all(_engine)#类型建立后,才能这样建立表
 class CommunitySpider(BaseLianjiaSpider):
 	VALIDATE_XPATH = '/html/body/div[4]/div[contains(@class,"leftContent")]'
-
-	BASE_URL_CD = 'http://cd.lianjia.com/xiaoqu/{district}/{page}p{price_level}/'
-	BASE_URL_HZ = 'http://hz.lianjia.com/xiaoqu/{district}/{page}p{price_level}/'
-	DISTRICTS_CD = [ 'jinjiang', 'qingyang', 'wuhou', 'gaoxing7', 'chenghua', 'jinniu', \
-					 'gaoxinxi1', 'pidou', 'tianfuxinqu', 'shuangliu', 'wenjiang', \
-					 'longquanyi', 'xindou',]
-
-	DISTRICTS_HZ = ['xihu', 'xiacheng', 'jianggan', 'gongshu', 'shangcheng', 'binjiang', \
-					'yuhang', 'xiaoshan', 'xiasha']
-	PRICE_LEVELS_HZ = [
-		4,#200-300
-		5,#300-500
-		3,#150-200
-		2,#100-150
-		1,#<100
-		6,#>500
-	]
-	PRICE_LEVELS_CD = [
-		4,#1~1.5
-		5,#1.5~2
-		3,#0.8~1
-		2,#0.5~0.8
-		1,#<0.5
-		6,#>2
-	]
+	BASIC_DATA = {
+		'cd':{
+			'BASE_URL':'http://cd.lianjia.com/xiaoqu/{district}/{page}p{price_level}/',
+			'DISTRICTS':[ 'jinjiang', 'qingyang', 'wuhou', 'gaoxing7', 'chenghua', 'jinniu', \
+						  'gaoxinxi1', 'pidou', 'tianfuxinqu', 'shuangliu', 'wenjiang', \
+						  'longquanyi', 'xindou',],
+			'PRICE_LEVELS':[
+				6,#>2
+				5,#1.5~2
+				4,#1~1.5
+				3,#0.8~1
+				2,#0.5~0.8
+				1,#<0.5
+			],
+		},
+		'hz':{
+			'BASE_URL':'http://hz.lianjia.com/xiaoqu/{district}/{page}p{price_level}/',
+			'DISTRICTS':['xihu', 'xiacheng', 'jianggan', 'gongshu', 'shangcheng', 'binjiang', \
+						 'yuhang', 'xiaoshan', 'xiasha'],
+			'PRICE_LEVELS':[
+				6,#>3
+				5,#2.5-3.0
+				4,#2.0-2.5
+				3,#1.5-2.0
+				2,#1-1.5
+				1,#<1
+			],
+		}
+	}
 
 	def __init__(self, city='cd'):
 		super(CommunitySpider, self).__init__()
-		if city == 'cd':
-			self.metas = [{'price_level':price_level, 'district':district} for price_level in self.PRICE_LEVELS_CD for district in self.DISTRICTS_CD]
-			self.BASE_URL = self.BASE_URL_CD
-		elif city == 'hz':
-			self.metas = [{'price_level':price_level, 'district':district} for price_level in self.PRICE_LEVELS_HZ for district in self.DISTRICTS_HZ]
-			self.BASE_URL = self.BASE_URL_HZ
-		self.start_urls = M.fill_meta_extract_start_urls(self.BASE_URL, self.metas)
+		self.session = M.create_engine('community', _Model, prefix='data', suffix=city)
+		basic_data = self.BASIC_DATA.get(city)
+		if basic_data:
+			self.metas = [{'price_level':price_level, 'district':district, }
+						  for price_level in basic_data['PRICE_LEVELS']
+						  for district in basic_data['DISTRICTS']]
+			self.BASE_URL = basic_data['BASE_URL']
+			self.start_urls = M.fill_meta_extract_start_urls(self.BASE_URL, self.metas)
+		else:
+			raise Exception('not supported city')
 
 	def parse(self, response):
 		attr_map = {

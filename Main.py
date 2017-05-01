@@ -41,9 +41,8 @@ def deal(city):
 
 	dispatcher.set_config({
 		'mode':dispatcher.DEPTH_MODE,
-		'use_proxy':True,
-		'use_cache':True,
-		'need_check_existence':False,
+		'use_proxy':False,
+		'need_check_existence':True,
 	})
 
 	dispatcher.run(DealSpider.DealSpider(city))
@@ -79,23 +78,28 @@ def post_handle():
 
 if __name__ == '__main__':
 	parser = optparse.OptionParser()
-	parser.add_option('-c', '--community_spider', action='store', dest='community_spider', help='enable spider of all community')
-	parser.add_option('-d', '--deal_spider', action='store', dest='deal_spider', help='enable spider of deal')
-	parser.add_option('-H', '--house_spider', action='store', dest='house_spider', help='enable spider of house')
+	parser.add_option('-C', '--city', action='store', dest='city', help='set city')
+	parser.add_option('-c', '--community_spider', action='store_true', dest='community_spider', help='enable spider of all community')
+	parser.add_option('-d', '--deal_spider', action='store_true', dest='deal_spider', help='enable spider of deal')
+	parser.add_option('-H', '--house_spider', action='store_true', dest='house_spider', help='enable spider of house')
 	parser.add_option('-a', '--analyze_deal', action='store_true', dest='analyze_deal', help='enable analyze deal')
 	parser.add_option('-m', '--music', action='store', dest='music', help='play music when end')
 	parser.add_option('-P', '--post_handle', action='store_true', dest='post_handle', help='enable post handle')
 	parser.add_option('-t', '--test', action='store_true', dest='test', help='enable test')
 	options, args = parser.parse_args()
+	if options.city:
+		city = options.city
+	else:
+		city = 'cd'
 	if options.community_spider:
 		logging.info('using community spider')
-		community(options.community_spider)
+		community(city)
 	if options.house_spider:
 		logging.info('using house spider')
-		house(options.house_spider)
+		house(city)
 	if options.deal_spider:
 		logging.info('using deal spider')
-		deal(options.deal_spider)
+		deal(city)
 	if options.analyze_deal:
 		logging.info('using analyze deal')
 		analyze_deal()

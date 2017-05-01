@@ -20,7 +20,7 @@ class BaseLianjiaSpider(BaseSpider):
 		existed_count = 0
 		for item in self._parse_items(response, item_xpath, item_attr_map, item_cls, meta_store_attrs):
 			item_count += 1
-			if self.config.get('need_check_existence') and item.check_existence():
+			if self.config.get('need_check_existence') and item.check_existence(self.session):
 				existed_count += 1
 			else:
 				yield item

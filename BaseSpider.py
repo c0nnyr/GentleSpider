@@ -1,6 +1,10 @@
 # coding:utf-8
 from Request import Request
 import re, json, datetime, urllib, urlparse, sys, os, logging, time, math, cPickle
+from sqlalchemy.orm import sessionmaker
+from sqlalchemy.ext.declarative import declarative_base
+import sqlalchemy
+
 
 class BaseSpider(object):
 	VALIDATE_XPATH = None
@@ -10,11 +14,18 @@ class BaseSpider(object):
 
 	START_FROM_LIKE_URL = None#从这个start url 继续开始
 
-	def __init__(self, start_urls=()):
-		if start_urls:
-			self.start_urls = start_urls
+	def __init__(self):
 		self.net = None
 		self.config = {}
+		self.session = None
+
+	def destroy(self):
+		if self.session:
+			self.session.close()
+			self.session = None
+
+	def get_session(self):
+		return self.session
 
 	def set_config(self, config):
 		self.config.update(config)

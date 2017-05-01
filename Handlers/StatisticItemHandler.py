@@ -24,8 +24,9 @@ class StatisticItemHandler(BaseItemHandler):
 		s0 = 'Total items:{}\n'.format(sum(self.statistic.itervalues()))
 		s1 = '  '.join('{}:{}'.format(name, count) for name, count in self.statistic.iteritems())
 		logging.info('StatisticItemHandler:' + s0 + s1)
+		self._try_post(None)
 
-	def handle(self, item):
+	def handle(self, item, spider):
 		self.statistic[item.__class__.__name__] += 1
 		self._try_log()
 		self._try_post(item)
@@ -40,7 +41,10 @@ class StatisticItemHandler(BaseItemHandler):
 		cur_time = time.time()
 		post_ind = int((cur_time - self.start_time) / 3600 / 2)#没两个小时通知一次
 		if post_ind > self.cur_post_ind:
-			msg = 'Current find total items {}, current meta {}'.format(sum(self.statistic.itervalues()), item.__dict__)
+			if item:
+				msg = 'Current find total items {}, current meta {}'.format(sum(self.statistic.itervalues()), item.__dict__)
+			else:
+				msg = 'Current find total items {}'.format(sum(self.statistic.itervalues()))
 			title = 'Spider statistic'
 			self.poster.post_immediatly(msg, title)
 			self.cur_post_ind = post_ind
