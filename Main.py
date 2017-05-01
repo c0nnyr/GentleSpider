@@ -28,6 +28,7 @@ def community(city):
 		'use_proxy':False,
 	})
 	dispatcher.run(CommunitySpider.CommunitySpider(city))
+	dispatcher.destroy()
 
 def deal(city):
 	dispatcher.remove_all_handlers()
@@ -46,6 +47,7 @@ def deal(city):
 	})
 
 	dispatcher.run(DealSpider.DealSpider(city))
+	dispatcher.destroy()
 
 def house(city):
 	dispatcher.remove_all_handlers()
@@ -62,6 +64,7 @@ def house(city):
 		'use_proxy':False,
 	})
 	dispatcher.run(HouseSpider.HouseSpider(city))
+	dispatcher.destroy()
 
 def analyze_deal():
 	analyzer = DealAnalyzer.DealAnalyzer()
@@ -88,18 +91,21 @@ if __name__ == '__main__':
 	parser.add_option('-t', '--test', action='store_true', dest='test', help='enable test')
 	options, args = parser.parse_args()
 	if options.city:
-		city = options.city
+		cities = options.city.split()
 	else:
-		city = 'cd'
+		cities = ('cd', )
 	if options.community_spider:
 		logging.info('using community spider')
-		community(city)
+		for city in cities:
+			community(city)
 	if options.house_spider:
 		logging.info('using house spider')
-		house(city)
+		for city in cities:
+			house(city)
 	if options.deal_spider:
 		logging.info('using deal spider')
-		deal(city)
+		for city in cities:
+			deal(city)
 	if options.analyze_deal:
 		logging.info('using analyze deal')
 		analyze_deal()
