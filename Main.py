@@ -7,6 +7,7 @@ from Spiders import DealSpider, HouseSpider, CommunitySpider
 from Logger import Logger
 from Analyze import DealAnalyzer
 import optparse, logging, datetime, json
+import GlobalMethod as M
 
 def community(dispatcher, city):
 	dispatcher.remove_all_handlers()
@@ -69,7 +70,33 @@ def test(dispatcher, ):
 	dispatcher.run(DoubanSpider.DoubanSpider())
 
 def post_handle():
-	pass
+	from Spiders.HouseSpider import _Model, HouseStateItem
+	import collections, pprint
+	session = M.create_engine('house', _Model, prefix='data', suffix='hz')
+	today = M.get_today_str()
+	yesterday = M.get_today_str(-1)
+	today_total_count = session.query(HouseStateItem).filter(HouseStateItem.meta_start_date==today).count()
+	print 'house_state_item_count', today, today_total_count
+	print 'house_state_item_count', yesterday, session.query(HouseStateItem).filter(HouseStateItem.meta_start_date==yesterday).count()
+
+	statistic = collections.defaultdict(lambda :0)
+	statistic_2 = {}
+
+	for ind, item in enumerate(session.query(HouseStateItem).filter(HouseStateItem.meta_start_date==today)):
+		yesterday_item = session.query(HouseStateItem).filter(HouseStateItem.meta_start_date==yesterday, HouseStateItem.url==item.url).first()
+		if yesterday_item and yesterday_item.total_price != item.total_price:
+			#print '{}/{}'.format(ind, today_total_count),
+			delta = float(item.total_price) - float(yesterday_item.total_price)
+			#print delta, item.url
+			key = 'up' if delta > 0 else 'down'
+			statistic[key] += 1
+			statistic_2[item.url] = (item, delta)
+
+	print statistic
+	for item, delta in sorted(statistic_2.itervalues(), key=lambda x:x[1], reverse=True):
+		print delta, item.url, item.total_price
+
+
 
 if __name__ == '__main__':
 	Logger()

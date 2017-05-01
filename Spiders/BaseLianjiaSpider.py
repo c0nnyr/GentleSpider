@@ -16,7 +16,7 @@ class ValidationItem(_Model):
 	bitvalue = Column(Integer())
 
 	all_bitvalues = None
-	THRESHOLD_COUNT = 100
+	THRESHOLD_COUNT = 1000
 
 	@classmethod
 	def initialize(cls, session):
