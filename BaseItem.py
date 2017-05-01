@@ -5,5 +5,5 @@ class BaseItem(object):
 		for k, v in kwargs.iteritems():
 			setattr(self, k, v)
 
-	def check_existence(self):
+	def check_existence(self, session):
 		return False

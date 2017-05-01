@@ -6,6 +6,11 @@ import GlobalMethod as M
 import sys, json
 
 class BaseProxySpider(BaseSpider):
+
+	def __init__(self):
+		super(BaseProxySpider, self).__init__()
+		self.session = M.create_engine('proxy', ProxyItem.__base__)
+
 	digits_pattern = re.compile('^[0-9.]*')
 	@classmethod
 	def transform_time_to_seconds(cls, t):
@@ -158,4 +163,3 @@ class ProxySpider4(BaseProxySpider):
 
 
 cls_list = [ProxySpider1, ProxySpider2, ProxySpider3, ProxySpider4]
-#cls_list = [ProxySpider2, ProxySpider3, ProxySpider4]

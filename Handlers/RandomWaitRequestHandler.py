@@ -8,7 +8,7 @@ class RandomWaitRequestHandler(BaseRequestHandler):
 		super(RandomWaitRequestHandler, self).__init__()
 		self.has_handled = False
 
-	def handle(self, request):
+	def handle(self, request, spider):
 		if not self.has_handled:
 			self.has_handled = True
 			return

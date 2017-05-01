@@ -2,14 +2,33 @@
 import functools, traceback, sys
 from sqlalchemy.orm import sessionmaker
 from sqlalchemy.ext.declarative import declarative_base
-from sqlalchemy import Column, Integer, String, Text, Float, create_engine, and_, or_, DateTime
+from sqlalchemy import Column, Integer, String, Text, Float, and_, or_, DateTime
+import sqlalchemy
 import datetime, types
 
-def create_db_engine(db_name):
-	engine = create_engine('sqlite:///{}.sqlite'.format(db_name))
-	session = sessionmaker(bind=engine)()
-	Model = declarative_base(name=db_name)
-	return engine, session, Model
+def create_db_engine(db_name, suffix=None, prefix=None):
+	prefix = '' if not prefix else prefix + '/'
+	suffix = '' if not suffix else '_' + suffix
+	engine = sqlalchemy.create_engine('sqlite:///{}{}{}.sqlite'.format(prefix, db_name, suffix))
+	model = declarative_base(name=db_name)
+	return engine, model
+
+def bind_session(engine, *item_cls_list):
+	for item_cls in item_cls_list:
+		item_cls.db.configure(bind=engine)
+
+def create_session_and_model(db_name):
+	session_cls = sessionmaker()
+	model_cls = declarative_base(name=db_name)
+	return session_cls, model_cls
+
+def create_engine(db_name, model, prefix=None, suffix=None):
+	prefix = '' if not prefix else prefix + '/'
+	suffix = '' if not suffix else '_' + suffix
+	engine = sqlalchemy.create_engine('sqlite:///{}{}{}.sqlite'.format(prefix, db_name, suffix))
+	model.metadata.create_all(engine)#创建表
+	session_cls = sessionmaker(bind=engine)
+	return session_cls()
 
 def arg_to_iter(arg):
 	if arg is None:

@@ -8,7 +8,7 @@ class LianjiaValidateWarnResponseHandler(BaseResponseHandler):
 		super(LianjiaValidateWarnResponseHandler, self).__init__()
 		self.validate_count = 0
 
-	def handle(self, response):
+	def handle(self, response, spider):
 		if 'captcha.lianjia.com/' in response.url:
 			self.validate_count += 1
 		if self.validate_count > 500:

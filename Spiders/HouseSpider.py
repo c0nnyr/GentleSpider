@@ -4,11 +4,11 @@ import re
 from BaseItem import BaseItem
 import GlobalMethod as M
 from sqlalchemy import Column, Text, DateTime
+from sqlalchemy.ext.declarative import declarative_base
 
-_engine, _session, _Model = M.create_db_engine('house')
+_Model = declarative_base(name='house')
 class HouseItem(BaseItem, _Model):
 	__tablename__ = 'house'
-	db = _session
 
 	_crawl_date = Column(DateTime())
 	meta_district = Column(Text(), primary_key=True)
@@ -32,7 +32,6 @@ class HouseItem(BaseItem, _Model):
 
 class HouseStateItem(BaseItem, _Model):
 	__tablename__ = 'house_state'
-	db = _session
 
 	meta_start_date = Column(Text(), primary_key=True)
 	meta_district = Column(Text(), primary_key=True)
@@ -47,65 +46,75 @@ class HouseStateItem(BaseItem, _Model):
 	def __str__(self):
 		return '<{}> {}'.format(self.__class__.__name__, self.url)
 	__repr__ = __str__
-
-_Model.metadata.create_all(_engine)#类型建立后,才能这样建立表
-
 class HouseSpider(BaseLianjiaSpider):
-	BASE_URL_CD = 'http://cd.lianjia.com/ershoufang/{district}/{page}co32a{area}p{price_level}/'#最新发布排序
 	VALIDATE_XPATH = '/html/body/div[4]/div[contains(@class,"leftContent")]'
-	DISTRICTS_CD = [ 'jinjiang', 'qingyang', 'wuhou', 'gaoxing7', 'chenghua', 'jinniu', \
-				  'gaoxinxi1', 'pidou', 'tianfuxinqu', 'shuangliu', 'wenjiang', \
-				  'longquanyi', 'xindou',]
-	PRICE_LEVELS_CD = [
-		4,#80-100
-		5,#100-150
-		3,#60-80
-		2,#40-60
-		1,#<40
-		6,#150-200
-		7,#200-300
-		8,#>300
-	]
-	BASE_URL_HZ = 'http://hz.lianjia.com/ershoufang/{district}/{page}a{area}p{price_level}/'
-	DISTRICTS_HZ = ['xihu', 'xiacheng', 'jianggan', 'gongshu', 'shangcheng', 'binjiang', \
-					'yuhang', 'xiaoshan', 'xiasha']
-	PRICE_LEVELS_HZ = [
-		4,#200-300
-		5,#300-500
-		3,#150-200
-		2,#100-150
-		1,#<100
-		6,#>500
-	]
-	AREAS = [
-		1,#<50
-		2,#50~70
-		3,#70~90
-		4,#90~110
-		5,#110~130
-		6,#130~150
-		7,#150~200
-		8,#>200
-	]
+
+	BASIC_DATA = {
+		'cd':{
+			'BASE_URL':'http://cd.lianjia.com/ershoufang/{district}/{page}co32a{area}p{price_level}/',#最新发布排序
+			'DISTRICTS':[ 'jinjiang', 'qingyang', 'wuhou', 'gaoxing7', 'chenghua', 'jinniu', \
+						  'gaoxinxi1', 'pidou', 'tianfuxinqu', 'shuangliu', 'wenjiang', \
+						  'longquanyi', 'xindou',],
+			'PRICE_LEVELS':[
+				8,#>300
+				7,#200-300
+				6,#150-200
+				5,#100-150
+				4,#80-100
+				3,#60-80
+				2,#40-60
+				1,#<40
+			],
+			'AREAS':[
+				8,#>200
+				7,#150~200
+				6,#130~150
+				5,#110~130
+				4,#90~110
+				3,#70~90
+				2,#50~70
+				1,#<50
+			]
+		},
+		'hz':{
+			'BASE_URL':'http://hz.lianjia.com/ershoufang/{district}/{page}a{area}p{price_level}/',
+			'DISTRICTS':['xihu', 'xiacheng', 'jianggan', 'gongshu', 'shangcheng', 'binjiang', \
+						 'yuhang', 'xiaoshan', 'xiasha'],
+			'PRICE_LEVELS':[
+				6,#>500
+				5,#300-500
+				4,#200-300
+				3,#150-200
+				2,#100-150
+				1,#<100
+			],
+			'AREAS':[
+				8,#>200
+				7,#150~200
+				6,#130~150
+				5,#110~130
+				4,#90~110
+				3,#70~90
+				2,#50~70
+				1,#<50
+			]
+		}
+	}
 
 	def __init__(self, city):
 		super(HouseSpider, self).__init__()
-		if city == 'cd':
+		self.session = M.create_engine('house', _Model, prefix='data', suffix=city)
+		basic_data = self.BASIC_DATA.get(city)
+		if basic_data:
 			self.metas = [{'price_level':price_level, 'district':district, 'area':area, }
-						  for price_level in self.PRICE_LEVELS_CD
-						  for district in self.DISTRICTS_CD
-						  for area in self.AREAS ]
-			self.BASE_URL = self.BASE_URL_CD
-		elif city == 'hz':
-			self.metas = [{'price_level':price_level, 'district':district, 'area':area, }
-						  for price_level in self.PRICE_LEVELS_HZ
-						  for district in self.DISTRICTS_HZ
-						  for area in self.AREAS ]
-			self.BASE_URL = self.BASE_URL_HZ
+						  for price_level in basic_data['PRICE_LEVELS']
+						  for district in basic_data['DISTRICTS']
+						  for area in basic_data['AREAS']]
+			self.BASE_URL = basic_data['BASE_URL']
+			self.start_urls = M.fill_meta_extract_start_urls(self.BASE_URL, self.metas)
 		else:
 			raise Exception('not supported city')
 
-		self.start_urls = M.fill_meta_extract_start_urls(self.BASE_URL, self.metas)
 
 	def parse(self, response):
 		attr_map = {
