@@ -3,7 +3,7 @@ from BaseLianjiaSpider import BaseLianjiaSpider
 import re
 from BaseItem import BaseItem
 import GlobalMethod as M
-from sqlalchemy import Column, Text, DateTime
+from sqlalchemy import Column, Text, DateTime, Date
 from sqlalchemy.ext.declarative import declarative_base
 
 _Model = declarative_base(name='house')
@@ -33,7 +33,7 @@ class HouseItem(BaseItem, _Model):
 class HouseStateItem(BaseItem, _Model):
 	__tablename__ = 'house_state'
 
-	meta_start_date = Column(Text(), primary_key=True)
+	meta_start_date = Column(Date(), primary_key=True)
 	meta_district = Column(Text(), primary_key=True)
 	meta_area = Column(Text(), primary_key=True)
 	meta_price_level = Column(Text(), primary_key=True)

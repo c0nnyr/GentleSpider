@@ -40,11 +40,14 @@ def fill_meta_extract_start_urls(base_url, base_metas):
 	start_urls = [base_url.format(page='', **meta) for meta in base_metas]
 	for start_url, meta in zip(start_urls, base_metas):
 		meta['start_url'] = start_url
-		meta['start_date'] = get_today_str()
+		meta['start_date'] = get_today()
 	return start_urls
 
 def get_today_str(delta=0):
 	return (datetime.date.today() + datetime.timedelta(delta)).strftime('%y-%m-%d')
+
+def get_today(delta=0):
+	return datetime.date.today() + datetime.timedelta(delta)
 
 def draw_hist(x, x_lable='', y_lable='', title='', bin_count=50):
 	import numpy as np

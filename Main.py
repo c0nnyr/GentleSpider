@@ -70,31 +70,51 @@ def test(dispatcher, ):
 	dispatcher.run(DoubanSpider.DoubanSpider())
 
 def post_handle():
-	from Spiders.HouseSpider import _Model, HouseStateItem
+	from Spiders.CommunitySpider import _Model, CommunityStateItem
 	import collections, pprint
-	session = M.create_engine('house', _Model, prefix='data', suffix='hz')
-	today = M.get_today_str()
-	yesterday = M.get_today_str(-1)
-	today_total_count = session.query(HouseStateItem).filter(HouseStateItem.meta_start_date==today).count()
-	print 'house_state_item_count', today, today_total_count
-	print 'house_state_item_count', yesterday, session.query(HouseStateItem).filter(HouseStateItem.meta_start_date==yesterday).count()
+	session = M.create_engine('community', _Model, prefix='data', suffix='hz2')
+	session2 = M.create_engine('community', _Model, prefix='data', suffix='hz')
+	#today = M.get_today()
+	#yesterday = M.get_today(-1)
+	#today_total_count = session.query(HouseStateItem).filter(HouseStateItem.meta_start_date==today).count()
+	#print 'house_state_item_count', today, today_total_count
+	#print 'house_state_item_count', yesterday, session.query(HouseStateItem).filter(HouseStateItem.meta_start_date==yesterday).count()
 
-	statistic = collections.defaultdict(lambda :0)
-	statistic_2 = {}
+	#statistic = collections.defaultdict(lambda :0)
+	#statistic_2 = {}
 
-	for ind, item in enumerate(session.query(HouseStateItem).filter(HouseStateItem.meta_start_date==today)):
-		yesterday_item = session.query(HouseStateItem).filter(HouseStateItem.meta_start_date==yesterday, HouseStateItem.url==item.url).first()
-		if yesterday_item and yesterday_item.total_price != item.total_price:
-			#print '{}/{}'.format(ind, today_total_count),
-			delta = float(item.total_price) - float(yesterday_item.total_price)
-			#print delta, item.url
-			key = 'up' if delta > 0 else 'down'
-			statistic[key] += 1
-			statistic_2[item.url] = (item, delta)
+	#for ind, item in enumerate(session.query(HouseStateItem).filter(HouseStateItem.meta_start_date==today)):
+	#	yesterday_item = session.query(HouseStateItem).filter(HouseStateItem.meta_start_date==yesterday, HouseStatjeItem.url==item.url).first()
+	#	if yesterday_item and yesterday_item.total_price != item.total_price:
+	#		#print '{}/{}'.format(ind, today_total_count),
+	#		delta = float(item.total_price) - float(yesterday_item.total_price)
+	#		#print delta, item.url
+	#		key = 'up' if delta > 0 else 'down'
+	#		statistic[key] += 1
+	#		statistic_2[item.url] = (item, delta)
 
-	print statistic
-	for item, delta in sorted(statistic_2.itervalues(), key=lambda x:x[1], reverse=True):
-		print delta, item.url, item.total_price
+	#print statistic
+	#for item, delta in sorted(statistic_2.itervalues(), key=lambda x:x[1], reverse=True):
+	#	print delta, item.url, item.total_price
+
+	for ind, item in enumerate(session.query(CommunityStateItem).all()):
+		#item.meta_start_date = item.meta_start_date + datetime.timedelta(days=365*2001 + 120)
+		new_item = CommunityStateItem(
+			meta_start_date = item.meta_start_date,
+			meta_district = item.meta_district,
+			meta_price_level = item.meta_price_level,
+			url = item.url,
+
+			sale_info = item.sale_info,
+			rent_info = item.rent_info,
+			unit_price = item.unit_price,
+			on_sale_count = item.on_sale_count,
+		)
+		session2.add(new_item)
+		if ind % 3000 == 1:
+			print ind
+			session2.commit()
+	session2.commit()
 
 
 
