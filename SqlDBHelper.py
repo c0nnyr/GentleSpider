@@ -1,7 +1,7 @@
 # coding:utf-8
 from sqlalchemy.orm import sessionmaker
 from sqlalchemy.ext.declarative import declarative_base
-from sqlalchemy import Column, Integer, String, Text, Float, create_engine, and_, or_, DateTime
+from sqlalchemy import Column, Integer, String, Text, Float, create_engine, and_, or_, DateTime, LargeBinary
 import datetime, random, logging
 import GlobalMethod as M
 from Request import Request
@@ -11,8 +11,8 @@ class RequestResponseMap(declarative_base(name='request_response_map')):
 	__tablename__  = 'request_response_map'
 
 	id = Column(Integer(),)
-	request = Column(Text(), primary_key=True)
-	response = Column(Text())
+	request = Column(LargeBinary(), primary_key=True)
+	response = Column(LargeBinary())
 
 	request_time = Column(DateTime())
 
