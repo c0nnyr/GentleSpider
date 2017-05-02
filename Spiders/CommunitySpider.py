@@ -49,7 +49,7 @@ class CommunitySpider(BaseLianjiaSpider):
 	BASIC_DATA = {
 		'cd':{
 			'BASE_URL':'http://cd.lianjia.com/xiaoqu/{district}/{page}p{price_level}/',
-			'DISTRICTS':[ 'jinjiang', 'qingyang', 'wuhou', 'gaoxing7', 'chenghua', 'jinniu', \
+			'DISTRICTS':[ 'jinjiang', 'qingyang', 'wuhou', 'gaoxin7', 'chenghua', 'jinniu', \
 						  'gaoxinxi1', 'pidou', 'tianfuxinqu', 'shuangliu', 'wenjiang', \
 						  'longquanyi', 'xindou',],
 			'PRICE_LEVELS':[

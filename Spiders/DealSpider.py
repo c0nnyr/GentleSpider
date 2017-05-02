@@ -45,7 +45,7 @@ class DealSpider(BaseLianjiaSpider):
 	BASIC_DATA = {
 		'cd':{
 			'BASE_URL':'http://cd.lianjia.com/chengjiao/{district}/{page}co32a{area}p{price_level}/',#最新发布排序
-			'DISTRICTS':[ 'jinjiang', 'qingyang', 'wuhou', 'gaoxing7', 'chenghua', 'jinniu', \
+			'DISTRICTS':[ 'jinjiang', 'qingyang', 'wuhou', 'gaoxin7', 'chenghua', 'jinniu', \
 						  'gaoxinxi1', 'pidou', 'tianfuxinqu', 'shuangliu', 'wenjiang', \
 						  'longquanyi', 'xindou',],
 			'PRICE_LEVELS':[

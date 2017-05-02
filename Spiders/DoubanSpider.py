@@ -56,7 +56,6 @@ class DoubanSpider(BaseSpider):
 		for tag_url, full_url in zip(tag_urls, full_urls):
 			tag = tag_url[5:]#tag
 			yield Request(full_url, callback='_parse_book_page', meta={'start_url':full_url, 'tag':tag})
-			return
 
 	def _parse_book_page(self, response):
 		item_xpath = '//*[@id="subject_list"]/ul/li'

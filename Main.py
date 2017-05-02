@@ -72,7 +72,7 @@ def book(dispatcher, ):
 
 	dispatcher.set_config({
 		'mode':dispatcher.DEPTH_MODE,
-		'use_proxy':False,
+		'use_proxy':True,
 	})
 	dispatcher.run(DoubanSpider.DoubanSpider())
 
