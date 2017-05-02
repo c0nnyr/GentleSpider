@@ -52,7 +52,7 @@ class BaseSpider(object):
 		return response
 
 	def is_valid_response(self, response):
-		return bool(response.xpath(self.VALIDATE_XPATH)) if self.VALIDATE_XPATH else None#至少存在这个
+		return bool(response.xpath(self.VALIDATE_XPATH)) if self.VALIDATE_XPATH else True#至少存在这个
 
 	def _parse_items(self, response, item_xpath, attr_map, item_cls, meta_store_attrs=('start_url',), dct_handler=None):
 		sel_items = response.xpath(item_xpath)
