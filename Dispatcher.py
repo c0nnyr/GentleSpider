@@ -106,7 +106,13 @@ class Dispatcher(object):
 							proxy = None
 							if self.config.get('use_proxy'):
 								proxy = self._proxy_mgr.pick_proxy(request_or_item.url)
-								if not proxy:
+								count = 0
+								while not proxy:
+									if count == 0:
+										time.sleep(60)
+									count += 1
+									if count > 10:
+										raise Exception('cannot find any proxy more')
 									proxy_dispatcher = Dispatcher()
 									proxy_dispatcher.set_network_service(self._network_service)
 									self._proxy_mgr.crawl_new_proxies(proxy_dispatcher)

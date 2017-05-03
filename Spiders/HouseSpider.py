@@ -47,8 +47,6 @@ class HouseStateItem(BaseItem, _Model):
 		return '<{}> {}'.format(self.__class__.__name__, self.url)
 	__repr__ = __str__
 class HouseSpider(BaseLianjiaSpider):
-	START_FROM_LIKE_URL = 'gongshu/a8p1'
-
 	VALIDATE_XPATH = '/html/body/div[4]/div[contains(@class,"leftContent")]'
 
 	BASIC_DATA = {

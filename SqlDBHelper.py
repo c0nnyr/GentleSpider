@@ -7,6 +7,8 @@ import GlobalMethod as M
 from Request import Request
 from Response import Response
 
+#session.execute('VACUUM')#删除后用这个可以减小文件大小
+
 class RequestResponseMap(declarative_base(name='request_response_map')):
 	__tablename__  = 'request_response_map'
 

@@ -40,7 +40,7 @@ class StatisticItemHandler(BaseItemHandler):
 	def _try_post(self, item):
 		cur_time = time.time()
 		post_ind = int((cur_time - self.start_time) / 3600 / 2)#没两个小时通知一次
-		if post_ind > self.cur_post_ind:
+		if post_ind > self.cur_post_ind or item is None:
 			if item:
 				msg = 'Current find total items {}, current meta {}'.format(sum(self.statistic.itervalues()), item.__dict__)
 			else:
