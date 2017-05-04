@@ -52,54 +52,62 @@ class BaseSpider(object):
 		return response
 
 	def is_valid_response(self, response):
-		return bool(response.xpath(self.VALIDATE_XPATH)) if self.VALIDATE_XPATH else True#至少存在这个
+		xpath = (response.meta or {}).get('validate_xpath') or self.VALIDATE_XPATH
+		return bool(response.xpath(xpath)) if xpath else True#至少存在这个
 
 	def _parse_items(self, response, item_xpath, attr_map, item_cls, meta_store_attrs=('start_url',), dct_handler=None):
 		sel_items = response.xpath(item_xpath)
 		for sel in sel_items:
-			dct = {}
-			for attr, item in attr_map.iteritems():
-				default = item.get('default')
-				xpath = item.get('xpath')
-				re_filter = item.get('re_filter')
-				handler = item.get('handler')
+			item = self._parse_item(response, attr_map, item_cls, meta_store_attrs, dct_handler, sel=sel)
+			if item:
+				yield item
 
-				jump_to_end = False
-				if not xpath:
-					if xpath is None:
-						val = default
-					else:
-						val = sel.extract()
+	def _parse_item(self, response, attr_map, item_cls, meta_store_attrs=('start_url',), dct_handler=None, sel=None):
+		if sel is None:
+			sel = response
+		dct = {}
+		for attr, item in attr_map.iteritems():
+			default = item.get('default')
+			xpath = item.get('xpath')
+			re_filter = item.get('re_filter')
+			handler = item.get('handler')
+
+			jump_to_end = False
+			if not xpath:
+				if xpath is None:
+					val = default
 				else:
-					val = ''.join(sel.xpath(xpath).extract()).strip()#对于year_built，有多项
-					if not val:
-						val = default
-						jump_to_end = True
-				if not jump_to_end and re_filter:
-					try:
-						val = re.search(re_filter, val).group('extract')
-					except:
-						val = default
-						jump_to_end = True
-				if not jump_to_end and handler:
-					try:
-						val = handler(val)
-					except:
-						val = default
-						jump_to_end = True
-				dct[attr] = val
-			if dct_handler:
-				dct = dct_handler(response, dct)
+					val = sel.extract()
+			else:
+				val = ''.join(sel.xpath(xpath).extract()).strip()#对于year_built，有多项
+				if not val:
+					val = default
+					jump_to_end = True
+			if not jump_to_end and re_filter:
+				try:
+					val = re.search(re_filter, val).group('extract')
+				except:
+					val = default
+					jump_to_end = True
+			if not jump_to_end and handler:
+				try:
+					val = handler(val)
+				except:
+					val = default
+					jump_to_end = True
+			dct[attr] = val
+		if dct_handler:
+			dct = dct_handler(response, dct)
 
-			dct.update({'meta_' + k:v for k, v in (response.meta or {}).iteritems() if k in meta_store_attrs})
+		dct.update({'meta_' + k:v for k, v in (response.meta or {}).iteritems() if k in meta_store_attrs})
 
-			#body = response.body
-			#dct['_response_body'] = cPickle.dumps(body if isinstance(body, unicode) else body.decode('utf-8'))
-			#dct['_request_response_id'] = response.id
-			dct['_cur_url'] = response.url
-			dct['_crawl_date'] = datetime.datetime.now()
+		#body = response.body
+		#dct['_response_body'] = cPickle.dumps(body if isinstance(body, unicode) else body.decode('utf-8'))
+		#dct['_request_response_id'] = response.id
+		dct['_cur_url'] = response.url
+		dct['_crawl_date'] = datetime.datetime.now()
 
-			yield item_cls(**dct)
+		return item_cls(**dct)
 
 	def _parse_img(self, response):
 		#没有返回一个item处理,而是自己消化了存储了,

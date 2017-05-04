@@ -3,11 +3,27 @@ from NetworkService import NetworkService
 from Dispatcher import Dispatcher
 from Handlers import SqlItemHandler, StatisticItemHandler, LianjiaValidateWarnResponseHandler, RandomWaitRequestHandler
 from BaseHandler import BaseItemHandler
-from Spiders import DealSpider, HouseSpider, CommunitySpider, DoubanSpider
+from Spiders import DealSpider, HouseSpider, CommunitySpider, DoubanSpider, NewCommunitySpider
 from Logger import Logger
 from Analyze import DealAnalyzer
 import optparse, logging, datetime, json
 import GlobalMethod as M
+
+def new_community(dispatcher, city):
+	dispatcher.remove_all_handlers()
+
+	dispatcher.add_item_handler(SqlItemHandler.SqlItemHandler())
+	dispatcher.add_item_handler(StatisticItemHandler.StatisticItemHandler())
+
+	dispatcher.add_response_handler(LianjiaValidateWarnResponseHandler.LianjiaValidateWarnResponseHandler())
+
+	dispatcher.add_request_handler(RandomWaitRequestHandler.RandomWaitRequestHandler())
+
+	dispatcher.set_config({
+		'mode':dispatcher.DEPTH_MODE,
+		'use_proxy':True,
+	})
+	dispatcher.run(NewCommunitySpider.NewCommunitySpider(city))
 
 def community(dispatcher, city):
 	dispatcher.remove_all_handlers()
@@ -120,6 +136,7 @@ if __name__ == '__main__':
 	parser.add_option('-P', '--post_handle', action='store_true', dest='post_handle', help='enable post handle')
 	parser.add_option('-t', '--test', action='store_true', dest='test', help='enable test')
 	parser.add_option('-b', '--book', action='store_true', dest='book', help='enable book')
+	parser.add_option('-n', '--new_community', action='store_true', dest='new_community', help='enable new_community')
 	options, args = parser.parse_args()
 	if options.city:
 		cities = options.city.split()
@@ -137,6 +154,10 @@ if __name__ == '__main__':
 		logging.info('using deal spider')
 		for city in cities:
 			deal(dispatcher, city)
+	if options.new_community:
+		logging.info('using new_community spider')
+		for city in cities:
+			new_community(dispatcher, city)
 	if options.analyze_deal:
 		logging.info('using analyze deal')
 		analyze_deal()
