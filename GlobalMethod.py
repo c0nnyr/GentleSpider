@@ -9,7 +9,7 @@ import datetime, types
 def create_engine(db_name, model, prefix=None, suffix=None):
 	prefix = '' if not prefix else prefix + '/'
 	suffix = '' if not suffix else '_' + suffix
-	engine = sqlalchemy.create_engine('sqlite:///{}{}{}.sqlite'.format(prefix, db_name, suffix))
+	engine = sqlalchemy.create_engine('sqlite:///{}/{}{}{}.sqlite'.format(sys.path[0], prefix, db_name, suffix))
 	model.metadata.create_all(engine)#创建表
 	session_cls = sessionmaker(bind=engine)
 	return session_cls()

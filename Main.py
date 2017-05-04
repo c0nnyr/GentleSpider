@@ -21,7 +21,7 @@ def community(dispatcher, city):
 
 	dispatcher.set_config({
 		'mode':dispatcher.DEPTH_MODE,
-		'use_proxy':False,
+		'use_proxy':True,
 	})
 	dispatcher.run(CommunitySpider.CommunitySpider(city))
 
@@ -37,7 +37,7 @@ def deal(dispatcher, city):
 
 	dispatcher.set_config({
 		'mode':dispatcher.DEPTH_MODE,
-		'use_proxy':False,
+		'use_proxy':True,
 		'need_check_existence':True,
 	})
 
@@ -55,7 +55,7 @@ def house(dispatcher, city):
 
 	dispatcher.set_config({
 		'mode':dispatcher.DEPTH_MODE,
-		'use_proxy':False,
+		'use_proxy':True,
 	})
 	dispatcher.run(HouseSpider.HouseSpider(city))
 
