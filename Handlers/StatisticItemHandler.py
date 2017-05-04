@@ -42,9 +42,9 @@ class StatisticItemHandler(BaseItemHandler):
 		post_ind = int((cur_time - self.start_time) / 3600 / 2)#没两个小时通知一次
 		if post_ind > self.cur_post_ind or item is None:
 			if item:
-				msg = 'Current find total items {}, current meta {}'.format(sum(self.statistic.itervalues()), item.__dict__)
+				msg = 'Current find total items {}, current meta {}, {}'.format(sum(self.statistic.itervalues()), item.__dict__, self.statistic)
 			else:
-				msg = 'Current find total items {}'.format(sum(self.statistic.itervalues()))
+				msg = 'Current find total items {}, {}'.format(sum(self.statistic.itervalues()), self.statistic)
 			title = 'Spider statistic'
 			self.poster.post_immediatly(msg, title)
 			self.cur_post_ind = post_ind

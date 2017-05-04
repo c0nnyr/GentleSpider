@@ -97,10 +97,11 @@ class ProxyItem(declarative_base(name='proxy')):
 			ip, port = ip_port.split(':')
 
 			item = session.query(cls).filter(and_(cls.ip == ip, cls.port == port)).first()
-			item.my_score = score
+			if item:
+				item.my_score = score
 
-			session.merge(item)
-			session.commit()
+				session.merge(item)
+				session.commit()
 
 	@classmethod
 	def clear_all(cls, session):
