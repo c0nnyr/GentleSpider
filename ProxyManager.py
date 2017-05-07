@@ -24,7 +24,7 @@ class ProxyManager(object):
 		ProxyItem.clear_all(self.session)
 		proxy_dispatcher.add_item_handler(SqlItemHandler.SqlItemHandler())
 		proxy_dispatcher.add_request_handler(RandomWaitRequestHandler.RandomWaitRequestHandler())
-		spiders = [cls() for cls in ProxySpider.cls_list]
+		spiders = [cls(proxy_dispatcher.get_tag()) for cls in ProxySpider.cls_list]
 		proxy_dispatcher.run(*spiders)
 
 	def pick_proxy(self, url):

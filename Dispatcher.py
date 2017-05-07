@@ -35,6 +35,9 @@ class Dispatcher(object):
 			self.session.close()
 			self.session = None
 
+	def get_tag(self):
+		return self._tag
+
 	def set_config(self, config):
 		logging.info('using config {}'.format(config))
 		self.config.update(config)
@@ -110,7 +113,7 @@ class Dispatcher(object):
 								count = 0
 								while not proxy:
 									if count == 0:
-										time.sleep(60)
+										time.sleep(1)
 									count += 1
 									if count > 10:
 										raise Exception('cannot find any proxy more')

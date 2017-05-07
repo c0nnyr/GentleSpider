@@ -7,9 +7,9 @@ import sys, json
 
 class BaseProxySpider(BaseSpider):
 
-	def __init__(self):
+	def __init__(self, tag=''):
 		super(BaseProxySpider, self).__init__()
-		self.session = M.create_engine('proxy', ProxyItem)
+		self.session = M.create_engine('proxy' + tag, ProxyItem)
 
 	digits_pattern = re.compile('^[0-9.]*')
 	@classmethod
