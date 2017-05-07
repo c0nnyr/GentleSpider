@@ -123,9 +123,6 @@ def post_handle():
 
 if __name__ == '__main__':
 	Logger()
-	dispatcher = Dispatcher()
-	dispatcher.set_network_service(NetworkService())
-
 	parser = optparse.OptionParser()
 	parser.add_option('-C', '--city', action='store', dest='city', help='set city')
 	parser.add_option('-c', '--community_spider', action='store_true', dest='community_spider', help='enable spider of all community')
@@ -137,7 +134,12 @@ if __name__ == '__main__':
 	parser.add_option('-t', '--test', action='store_true', dest='test', help='enable test')
 	parser.add_option('-b', '--book', action='store_true', dest='book', help='enable book')
 	parser.add_option('-n', '--new_community', action='store_true', dest='new_community', help='enable new_community')
+	parser.add_option('-T', '--tag', action='store', dest='tag', help='tag')
 	options, args = parser.parse_args()
+
+	dispatcher = Dispatcher(options.tag or '')
+	dispatcher.set_network_service(NetworkService())
+
 	if options.city:
 		cities = options.city.split()
 	else:

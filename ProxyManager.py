@@ -8,11 +8,11 @@ import GlobalMethod as M
 class ProxyManager(object):
 	REQUEST_COUNT_THRESHOLD = ProxyItem.DEFAULT_SCORE
 
-	def __init__(self):
+	def __init__(self, tag=''):
 		self._proxy = None
 		self._proxy_score = None
 		self._cur_proxy_request_count = 0
-		self.session = M.create_engine('proxy', ProxyItem)
+		self.session = M.create_engine('proxy' + tag, ProxyItem)
 
 	def destroy(self):
 		if self.session:

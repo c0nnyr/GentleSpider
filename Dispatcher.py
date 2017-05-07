@@ -15,19 +15,20 @@ class Dispatcher(object):
 	DEPTH_MODE = 0
 	WIDTH_MODE = 1
 
-	def __init__(self):
+	def __init__(self, tag=''):
 		super(Dispatcher, self).__init__()
 		self._network_service = None
 		self._item_handler_list = []
 		self._request_handler_list = []
 		self._response_handler_list = []
+		self._tag = tag
 		self.config = {
 			'use_proxy':False,
 			'mode':self.DEPTH_MODE,
 		}
 		self._proxy_mgr = None
 		self._is_last_request_using_cache = False
-		self.session = M.create_engine('request_response_map', RequestResponseMap)
+		self.session = M.create_engine('request_response_map' + tag, RequestResponseMap)
 
 	def destroy(self):
 		if self.session:
@@ -38,7 +39,7 @@ class Dispatcher(object):
 		logging.info('using config {}'.format(config))
 		self.config.update(config)
 		if self.config.get('use_proxy') and not self._proxy_mgr:
-			self._proxy_mgr = ProxyManager()
+			self._proxy_mgr = ProxyManager(self._tag)
 		elif not self.config.get('use_proxy') and self._proxy_mgr:
 			self._proxy_mgr.destroy()
 			self._proxy_mgr = None
@@ -113,7 +114,7 @@ class Dispatcher(object):
 									count += 1
 									if count > 10:
 										raise Exception('cannot find any proxy more')
-									proxy_dispatcher = Dispatcher()
+									proxy_dispatcher = Dispatcher(self._tag)
 									proxy_dispatcher.set_network_service(self._network_service)
 									self._proxy_mgr.crawl_new_proxies(proxy_dispatcher)
 									proxy_dispatcher.destroy()
