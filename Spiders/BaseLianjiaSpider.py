@@ -56,11 +56,11 @@ class BaseLianjiaSpider(BaseSpider):
 
 	def __init__(self):
 		super(BaseLianjiaSpider, self).__init__()
-		self._validation_session = M.create_engine('validation', _Model)
+		#self._validation_session = M.create_engine('validation', _Model)
 
 	def destroy(self):
-		self._validation_session.close()
-		self._validation_session = None
+		#self._validation_session.close()
+		#self._validation_session = None
 		super(BaseLianjiaSpider, self).destroy()
 
 	def _parse_multipage(self, response, item_cls, item_xpath, item_attr_map, total_count_xpath, meta_store_attrs):
@@ -113,7 +113,7 @@ class BaseLianjiaSpider(BaseSpider):
 			return response
 		original_response = response
 		try_validate_count = 0
-		ValidationItem.initialize(self._validation_session)
+		#ValidationItem.initialize(self._validation_session)
 		try:
 			original_url = urllib.unquote(re.search(r'redirect=(?P<extract>.*)', response.url).group('extract'))
 			original_meta = response.meta
@@ -136,14 +136,15 @@ class BaseLianjiaSpider(BaseSpider):
 					csrf = re.search(r'name="_csrf" value="(?P<extract>\S*?)"', response.body).group('extract')
 					response = self.net.send_request(Request(self.VALIDATE_IMG_URL), proxies=proxy, timeout=timeout)
 					dct = json.loads(response.body)
-				bitvalue = ValidationItem.get_possible_bitvalue(self._validation_session)
+				#bitvalue = ValidationItem.get_possible_bitvalue(self._validation_session)
+				bitvalue = random.choice(range(1, 16))
 				formdata = {'_csrf':csrf, 'uuid':dct['uuid'], 'bitvalue':str(bitvalue)}
 				time.sleep(1)
 				response = self.net.send_request(Request(self.VALIDATE_IMG_URL, method='post', data=formdata), \
 												 proxies=proxy, timeout=timeout)
 
 				if '"error":true' not in response.body:
-					ValidationItem.save(self._validation_session, bitvalue)
+					#ValidationItem.save(self._validation_session, bitvalue)
 					logging.info('finish validating')
 					time.sleep(1)
 					return self.net.send_request(Request(original_url, meta=original_meta), proxies=proxy, timeout=timeout)
