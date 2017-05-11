@@ -45,6 +45,13 @@ class StatisticItemHandler(BaseItemHandler):
 		self._try_post(None)
 
 	def handle(self, item, spider):
+		if not self.template:
+			city = 'cd' if 'cd.lianjia' in item.url else 'hz'
+			templates = self.POST_TEMPLATE[city]
+			cls_name = item.__class__.__name__
+			if cls_name in templates:
+				self.template = templates[cls_name]
+
 		self.statistic[item.__class__.__name__] += 1
 		self._try_log()
 		self._try_post(item)
@@ -59,16 +66,11 @@ class StatisticItemHandler(BaseItemHandler):
 		cur_time = time.time()
 		post_ind = int((cur_time - self.start_time) / 3600 / 2)#没两个小时通知一次
 		if post_ind > self.cur_post_ind or item is None:
-			msg = ''
+			msg = 'null'
 			try:
 				if item:
-					city = 'cd' if 'cd.lianjia' in item.url else 'hz'
-					templates = self.POST_TEMPLATE[city]
-					cls_name = item.__class__.__name__
-					if cls_name not in templates:
-						return
-					self.template = templates[cls_name]
-					msg = self.template.format(count=dict(self.statistic), **item.__dict__)
+					if self.template:
+						msg = self.template.format(count=dict(self.statistic), **item.__dict__)
 				else:
 					if self.template:
 						msg = self.template.format(count=dict(self.statistic), meta_district='END', meta_area='END', meta_price_level='END')
