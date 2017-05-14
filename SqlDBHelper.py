@@ -45,8 +45,8 @@ class RequestResponseMap(declarative_base(name='request_response_map')):
 	@classmethod
 	def store(cls, session, request, response):
 		request_response_pair = cls(request, response)
-		session.merge(request_response_pair)
-		session.commit()
+		#session.merge(request_response_pair)
+		#session.commit()
 		return request_response_pair.id
 
 class ProxyItem(declarative_base(name='proxy')):
