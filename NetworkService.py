@@ -21,10 +21,10 @@ class NetworkService(object):
 		self.cur_proxies = None
 
 	def _update_session(self, proxies):
-		if proxies != self.cur_proxies:
-			if self.session:
-				self.session.close()
-				self.session = None
+		#if proxies != self.cur_proxies:
+		if self.session:
+			self.session.close()
+			self.session = None
 		if not self.session:
 			self.session = session = requests.Session()
 			session.headers.update(self.DEFAULT_HEADER)
