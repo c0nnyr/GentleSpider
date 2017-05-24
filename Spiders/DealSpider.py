@@ -44,7 +44,7 @@ class DealSpider(BaseLianjiaSpider):
 
 	BASIC_DATA = {
 		'cd':{
-			'BASE_URL':'http://cd.lianjia.com/chengjiao/{district}/{page}a{area}p{price_level}/',
+			'BASE_URL':'https://cd.lianjia.com/chengjiao/{district}/{page}a{area}p{price_level}/',
 			'DISTRICTS':[ 'jinjiang', 'qingyang', 'wuhou', 'gaoxin7', 'chenghua', 'jinniu', \
 						  'gaoxinxi1', 'pidou', 'tianfuxinqu', 'shuangliu', 'wenjiang', \
 						  'longquanyi', 'xindou',],
@@ -70,7 +70,7 @@ class DealSpider(BaseLianjiaSpider):
 			]
 		},
 		'hz':{
-			'BASE_URL':'http://hz.lianjia.com/chengjiao/{district}/{page}a{area}p{price_level}/',
+			'BASE_URL':'https://hz.lianjia.com/chengjiao/{district}/{page}a{area}p{price_level}/',
 			'DISTRICTS':['xihu', 'xiacheng', 'jianggan', 'gongshu', 'shangcheng', 'binjiang', \
 						 'yuhang', 'xiaoshan', 'xiasha'],
 			'PRICE_LEVELS':[

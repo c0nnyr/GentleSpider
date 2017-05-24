@@ -48,7 +48,7 @@ class CommunitySpider(BaseLianjiaSpider):
 	VALIDATE_XPATH = '/html/body/div[4]/div[contains(@class,"leftContent")]'
 	BASIC_DATA = {
 		'cd':{
-			'BASE_URL':'http://cd.lianjia.com/xiaoqu/{district}/{page}p{price_level}/',
+			'BASE_URL':'https://cd.lianjia.com/xiaoqu/{district}/{page}p{price_level}/',
 			'DISTRICTS':[ 'jinjiang', 'qingyang', 'wuhou', 'gaoxin7', 'chenghua', 'jinniu', \
 						  'gaoxinxi1', 'pidou', 'tianfuxinqu', 'shuangliu', 'wenjiang', \
 						  'longquanyi', 'xindou',],
@@ -62,7 +62,7 @@ class CommunitySpider(BaseLianjiaSpider):
 			],
 		},
 		'hz':{
-			'BASE_URL':'http://hz.lianjia.com/xiaoqu/{district}/{page}p{price_level}/',
+			'BASE_URL':'https://hz.lianjia.com/xiaoqu/{district}/{page}p{price_level}/',
 			'DISTRICTS':['xihu', 'xiacheng', 'jianggan', 'gongshu', 'shangcheng', 'binjiang', \
 						 'yuhang', 'xiaoshan', 'xiasha'],
 			'PRICE_LEVELS':[

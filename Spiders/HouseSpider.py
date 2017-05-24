@@ -51,7 +51,7 @@ class HouseSpider(BaseLianjiaSpider):
 
 	BASIC_DATA = {
 		'cd':{
-			'BASE_URL':'http://cd.lianjia.com/ershoufang/{district}/{page}co32a{area}p{price_level}/',#最新发布排序
+			'BASE_URL':'https://cd.lianjia.com/ershoufang/{district}/{page}co32a{area}p{price_level}/',#最新发布排序
 			'DISTRICTS':[ 'jinjiang', 'qingyang', 'wuhou', 'gaoxin7', 'chenghua', 'jinniu', \
 						  'gaoxinxi1', 'pidou', 'tianfuxinqu', 'shuangliu', 'wenjiang', \
 						  'longquanyi', 'xindou',],
@@ -77,7 +77,7 @@ class HouseSpider(BaseLianjiaSpider):
 			]
 		},
 		'hz':{
-			'BASE_URL':'http://hz.lianjia.com/ershoufang/{district}/{page}a{area}p{price_level}/',
+			'BASE_URL':'https://hz.lianjia.com/ershoufang/{district}/{page}a{area}p{price_level}/',
 			'DISTRICTS':['xihu', 'xiacheng', 'jianggan', 'gongshu', 'shangcheng', 'binjiang', \
 						 'yuhang', 'xiaoshan', 'xiasha'],
 			'PRICE_LEVELS':[
